@@ -1,9 +1,8 @@
-// ============================================================
-//  THE LOVE LANGUAGES WORKBOOK  -  app.js
-// ============================================================
+/* ================================================================
+   THE LOVE LANGUAGES WORKBOOK - app.js  (complete rewrite)
+   ================================================================ */
 
-// ─── DATA ────────────────────────────────────────────────────
-
+// ── QUIZ DATA ─────────────────────────────────────────────────
 const QUIZ_QUESTIONS = [
   { a: "I feel loved when my partner tells me specifically what they appreciate about me.", b: "I feel loved when my partner sits with me and gives me their complete attention." },
   { a: "A small, thoughtful surprise means more to me than an expensive grand gesture.", b: "When my partner does something helpful without being asked, I feel deeply cared for." },
@@ -27,7 +26,7 @@ const QUIZ_QUESTIONS = [
   { a: "My partner expressing gratitude or admiration out loud and sincerely fills my love tank.", b: "My partner doing something thoughtful and practical for me without being asked is how I feel truly loved." }
 ];
 
-// Scoring key: {language: [{q: 1-based, choice: 'A'|'B'}, ...]}
+// Scoring key: for each language, which (question index 1-based, choice A or B) maps to it
 const SCORING_KEY = {
   words:   [{q:1,c:'A'},{q:6,c:'B'},{q:8,c:'A'},{q:10,c:'B'},{q:13,c:'A'},{q:15,c:'B'},{q:17,c:'B'},{q:20,c:'A'}],
   time:    [{q:1,c:'B'},{q:6,c:'A'},{q:9,c:'A'},{q:11,c:'B'},{q:14,c:'A'},{q:16,c:'B'},{q:19,c:'A'}],
@@ -36,17 +35,17 @@ const SCORING_KEY = {
   gifts:   [{q:2,c:'A'},{q:5,c:'B'},{q:8,c:'B'},{q:10,c:'A'},{q:13,c:'B'},{q:16,c:'A'},{q:18,c:'B'}]
 };
 
-const LL_INFO = {
-  words:   { label: "Words of Affirmation", icon: "💬", cls: "words",   color: "#c97b63" },
-  time:    { label: "Quality Time",         icon: "⏱",  cls: "time",    color: "#8aac8e" },
-  touch:   { label: "Physical Touch",       icon: "🤝", cls: "touch",   color: "#b07bbf" },
-  service: { label: "Acts of Service",      icon: "🛠",  cls: "service", color: "#d4a043" },
-  gifts:   { label: "Receiving Gifts",      icon: "🎁", cls: "gifts",   color: "#6b9fc4" }
+const LL = {
+  words:   { label: "Words of Affirmation", icon: "💬", cls: "words",   color: "#A0607A", max: 8 },
+  time:    { label: "Quality Time",         icon: "⏱",  cls: "time",    color: "#7A9E84", max: 7 },
+  touch:   { label: "Physical Touch",       icon: "🤝", cls: "touch",   color: "#8B6BA8", max: 8 },
+  service: { label: "Acts of Service",      icon: "🛠",  cls: "service", color: "#C89A4A", max: 7 },
+  gifts:   { label: "Receiving Gifts",      icon: "🎁", cls: "gifts",   color: "#5B8FB8", max: 7 }
 };
 
-const LL_DESCRIPTIONS = {
+const LL_DESC = {
   words: {
-    full: "At its core, this language is about verbal acknowledgment — the need to have your worth, your effort, and your presence in someone's life spoken out loud. For people whose primary language is words, silence is loud and specific praise is felt in the chest.",
+    full: "At its core, this language is about verbal acknowledgment -- the need to have your worth, your effort, and your presence in someone's life spoken out loud. For people whose primary language is words, silence is loud and specific praise is felt in the chest.",
     needs: "Specific, genuine praise; hearing \"I love you\" regularly and sincerely; and to have their efforts and contributions named out loud.",
     hurt: "Harsh words, criticism delivered carelessly, or long stretches without affirmation, even if everything is technically fine.",
     quote: "\"I just need to hear that you notice me.\""
@@ -94,7 +93,7 @@ const TRANSLATION_GUIDE = {
   },
   time: {
     dos: [
-      "Put your phone down and actually be present, truly present",
+      "Put your phone down and actually be present -- truly present",
       "Plan something intentional, even if simple: a walk, a meal, a drive",
       "Ask real questions and listen all the way to the end of their answer",
       "Choose them and make it clear that being with them is something you want",
@@ -150,9 +149,9 @@ const TRANSLATION_GUIDE = {
   }
 };
 
-const ACTION_MENU = {
+const ACTION_POOL = {
   words: [
-    "Send a voice note that says something specific you love about them, not a text but a voice note",
+    "Send a voice note that says something specific you love about them -- not a text but a voice note",
     "Leave a handwritten sticky note somewhere they'll find it after you're gone",
     "Say \"I'm proud of you\" out loud, unprompted, and mean it",
     "Text them in the middle of a random Tuesday just to say you were thinking of them",
@@ -166,7 +165,7 @@ const ACTION_MENU = {
   time: [
     "Have a phone-free dinner with phones in another room and just the two of you",
     "Take a 20-minute walk together with nowhere to go and no agenda",
-    "Ask one of these questions and actually listen: \"What's something you haven't told anyone lately?\"",
+    "Ask one question and actually listen: \"What's something you haven't told anyone lately?\"",
     "Cook a meal together with music on and no rushing",
     "Establish a tiny ritual that's just yours: morning coffee, evening walk, Sunday breakfast",
     "Watch something they've been wanting to watch, without your phone in your hand",
@@ -176,7 +175,7 @@ const ACTION_MENU = {
     "Plan a no-phone hour and sit together, make something, play something, or just be present"
   ],
   touch: [
-    "Give a real hug, not a pat, but a proper hug that you hold",
+    "Give a real hug -- not a pat, but a proper hug that you hold",
     "Reach for their hand during a movie or while you're sitting together",
     "Put a hand on their back when you walk past them in the kitchen",
     "Greet them when they come home and actually stop what you're doing",
@@ -195,7 +194,7 @@ const ACTION_MENU = {
     "Book the thing, make the call, handle the appointment they've been meaning to schedule",
     "Clean or organize one space in your home they find stressful",
     "Handle bedtime, dinner, or another recurring task solo and tell them to rest",
-    "Send them a text that says: \"Is there anything I can take off your plate today?\"",
+    "Send them a text: \"Is there anything I can take off your plate today?\"",
     "Grocery shop for what they need specifically, not just what you want",
     "Follow through on something you said you'd do, all the way, without being reminded"
   ],
@@ -214,131 +213,127 @@ const ACTION_MENU = {
 };
 
 const DATE_IDEAS = [
-  { ll: "Words",   i1: "A 'love letter dinner': you each write the other a real letter and read them aloud over a meal", i2: "A memory jar date: each of you writes your 5 favorite memories on slips, then pull and read them together" },
+  { ll: "Words",   i1: "A 'love letter dinner': you each write a real letter and read them aloud over a meal", i2: "A memory jar date: write your 5 favorite memories on slips and pull them together" },
   { ll: "Time",    i1: "A full tech-free evening: cook together, eat together, play a game, talk", i2: "A 'yes night': one partner plans the entire evening around what the other person loves most" },
   { ll: "Touch",   i1: "A slow evening at home with a long bath, a real massage, music, and no agenda", i2: "A stargazing night: lay outside, stay close, and talk about nothing and everything" },
-  { ll: "Service", i1: "Each partner secretly handles three things the other has been putting off, then reveal them over dinner", i2: "A 'take care of you' date: one partner plans everything and handles everything, the other just receives" },
-  { ll: "Gifts",   i1: "A scavenger hunt where each clue comes with a small meaningful gift", i2: "A 'box of us' date: you each bring 5 things that represent something about your relationship, then share them" }
+  { ll: "Service", i1: "Each partner secretly handles three things the other has been putting off, then reveal at dinner", i2: "A 'take care of you' date: one partner plans everything, the other just receives" },
+  { ll: "Gifts",   i1: "A scavenger hunt where each clue comes with a small meaningful gift", i2: "A 'box of us' date: each bring 5 things that represent something about your relationship" }
 ];
 
-const CHALLENGE_DAYS = [
-  { day:1,  ll:"words",   action:"Send your partner a voice note, not a text. Tell them one specific thing you love about them. No multitasking. Just that." },
-  { day:2,  ll:"service", action:"Handle one task your partner has been putting off. Do it without telling them first. Let them find it done." },
-  { day:3,  ll:"time",    action:"Spend 20 minutes together tonight with no screens. Talk, play something, sit outside. No agenda." },
-  { day:4,  ll:"gifts",   action:"Pick up something small for your partner today: their favorite snack, a drink, a little something. No occasion needed." },
-  { day:5,  ll:"touch",   action:"Give your partner a real hug today. Not quick, but held for a full 6 seconds. No rushing." },
-  { day:6,  ll:"words",   action:"Tell your partner out loud what you find most beautiful about who they are as a person, not just how they look." },
-  { day:7,  ll:"time",    action:"Have a phone-free meal together. Phones in another room. Actually eat together and talk." },
-  { day:8,  ll:"service", action:"Make their coffee, tea, or breakfast how they like it before they ask." },
-  { day:9,  ll:"touch",   action:"Sit close enough to be touching while you watch something tonight and stay there." },
-  { day:10, ll:"words",   action:"Leave a handwritten note somewhere unexpected: their bag, the mirror, their bedside table." },
-  { day:11, ll:"gifts",   action:"Send a playlist you made for them: songs that remind you of them, of you both, or of this month." },
-  { day:12, ll:"time",    action:"Ask your partner a question you've never asked before. Listen all the way through their answer." },
-  { day:13, ll:"service", action:"Follow through completely on one thing you've been meaning to do for them. No more delay." },
-  { day:14, ll:"touch",   action:"Reach for their hand today: in the car, on a walk, on the couch. Just reach for it." },
-  { day:15, ll:"words",   action:"Say \"I'm proud of you\" today and tell them specifically why." },
-  { day:16, ll:"gifts",   action:"Get them something you heard them mention once: proof that you were listening." },
-  { day:17, ll:"time",    action:"Plan a small ritual that's just yours: morning coffee, evening walk, Sunday breakfast. Suggest it today." },
-  { day:18, ll:"words",   action:"Ask your partner: \"Is there something I've been doing that hasn't been landing for you?\" Then listen without defending." },
-  { day:19, ll:"touch",   action:"Greet your partner today like you mean it: stop what you're doing and actually greet them when they arrive." },
-  { day:20, ll:"service", action:"Ask: \"Is there anything I can take off your plate today?\" and then do it, whatever the answer is." },
-  { day:21, ll:"time",    action:"Revisit somewhere that means something to your relationship: a first date spot, a favorite place, or a meaningful drive." },
-  { day:22, ll:"gifts",   action:"Create something for them: a printed photo, a written memory, a hand-drawn card. Something made, not bought." },
-  { day:23, ll:"words",   action:"Share a memory of a moment with them that made you think: \"I'm so glad I have this person.\"" },
-  { day:24, ll:"touch",   action:"Give an unprompted back rub or shoulder rub, not as a lead-up to anything but just because." },
-  { day:25, ll:"service", action:"Plan an entire date or evening and handle every detail. They show up. You take care of everything." },
-  { day:26, ll:"time",    action:"Spend an hour doing something your partner loves, not what you'd choose but what they would. Be fully present." },
-  { day:27, ll:"words",   action:"Write your partner a letter, not a text but an actual written letter. Tell them what this month meant to you." },
-  { day:28, ll:"gifts",   action:"Book an experience for you both: a class, a restaurant, a trip, a film. Give them something to look forward to." },
-  { day:29, ll:"touch",   action:"Spend the evening physically close: cook together, watch something together, stay in contact all evening." },
-  { day:30, ll:"together",action:"Sit together. Read your Day 1 intentions aloud. Talk about what shifted this month. Then complete the reflection page." }
-];
+// ── STATE ─────────────────────────────────────────────────────
+const STATE_KEY = 'llw_v2';
+let S;
 
-// ─── STATE ───────────────────────────────────────────────────
-const STATE_KEY = 'llw_v1';
+function defaultState() {
+  return {
+    nameA: '', nameB: '',
+    currentPage: 'cover',
+    showGuidedBanner: true,
+    // Quiz -- fully independent objects
+    quizA: { answers: {}, done: false, scores: {} },
+    quizB: { answers: {}, done: false, scores: {} },
+    // Which partner tab is active in quiz view
+    activeQuizPartner: 'A',
+    quizCurrentQA: 1,
+    quizCurrentQB: 1,
+    // Warm-up
+    warmupA: '', warmupB: '',
+    // Profile
+    profileA: { primary:'', secondary:'', feels:'', secNotice:'', partnerDoes:'', wishUnderstood:'', showsThrough:'' },
+    profileB: { primary:'', secondary:'', feels:'', secNotice:'', partnerDoes:'', wishUnderstood:'', showsThrough:'' },
+    // Comparison map
+    compMap: { overlap:'', difference:'', misunderstood:'', opportunity:'', alreadyWell:'' },
+    translationNote: '',
+    // Request cards
+    requestA: { ll:'', r1:'', r2:'', r3:'', mostMeans:'', sign:'' },
+    requestB: { ll:'', r1:'', r2:'', r3:'', mostMeans:'', sign:'' },
+    // Date night
+    dateNightA: { partnerLL:'', idea:'', feelSeen:'', wantToFeel:'', date:'' },
+    dateNightB: { partnerLL:'', idea:'', feelSeen:'', wantToFeel:'', date:'' },
+    // Barriers
+    barriersA: { difficult:'', family:'', naturally:'', belief:'', stretch:'' },
+    barriersB: { difficult:'', family:'', naturally:'', belief:'', stretch:'' },
+    // Commitments
+    commitA: { doRegularly:'', whenTired:'', remindMe:'', sign:'' },
+    commitB: { doRegularly:'', whenTired:'', remindMe:'', sign:'' },
+    // 30-day challenge -- two separate trackers
+    challengeA: { checked:{}, notes:{}, intention:'', startDate:'' }, // A does actions for B
+    challengeB: { checked:{}, notes:{}, intention:'', startDate:'' }, // B does actions for A
+    // Reflection
+    reflectionA: { dayMeant:'', noticed:'', surprised:'', understand:'' },
+    reflectionB: { dayMeant:'', noticed:'', surprised:'', understand:'' },
+    reflectionTogether: { commitment:'', signA:'', signB:'' },
+    // Misc
+    weeklyFocusA: '', weeklyFocusB: ''
+  };
+}
 
 function loadState() {
   try {
     const raw = localStorage.getItem(STATE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
+    if (raw) {
+      const loaded = JSON.parse(raw);
+      // Deep merge with defaults to handle new keys
+      return deepMerge(defaultState(), loaded);
+    }
+  } catch(e) {}
+  return defaultState();
 }
 
-function saveState(state) {
-  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch {}
+function deepMerge(target, source) {
+  const out = Object.assign({}, target);
+  for (const key of Object.keys(source)) {
+    if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      out[key] = deepMerge(target[key] || {}, source[key]);
+    } else {
+      out[key] = source[key];
+    }
+  }
+  return out;
 }
 
-let state = loadState() || {
-  nameA: '',
-  nameB: '',
-  currentPage: 'cover',
-  quizAnswersA: {},
-  quizAnswersB: {},
-  quizDoneA: false,
-  quizDoneB: false,
-  scoresA: {},
-  scoresB: {},
-  warmupA: '',
-  warmupB: '',
-  profileA: { primary: '', secondary: '', feels: '', secNotice: '', partnerDoes: '', wishUnderstood: '', showsThrough: '', partnerNeeds: '' },
-  profileB: { primary: '', secondary: '', feels: '', secNotice: '', partnerDoes: '', wishUnderstood: '', showsThrough: '', partnerNeeds: '' },
-  comparisonPrompts: { overlap: '', difference: '', misunderstood: '', opportunity: '', alreadyWell: '' },
-  requestA: { ll: '', r1: '', r2: '', r3: '', mostMeans: '', sign: '' },
-  requestB: { ll: '', r1: '', r2: '', r3: '', mostMeans: '', sign: '' },
-  translationNote: '',
-  dateNightA: { partnerLL: '', idea: '', feel_seen: '', prepare: '', want_to_feel: '', date: '' },
-  dateNightB: { partnerLL: '', idea: '', feel_seen: '', prepare: '', want_to_feel: '', date: '' },
-  barriersA: { difficult: '', family: '', naturally: '', belief: '', stretch: '' },
-  barriersB: { difficult: '', family: '', naturally: '', belief: '', stretch: '' },
-  commitA: { doRegularly: '', whenTired: '', remindMe: '' },
-  commitB: { doRegularly: '', whenTired: '', remindMe: '' },
-  challengeChecked: {},
-  challengeNotes: {},
-  intentionA: '',
-  intentionB: '',
-  challengeStartDate: '',
-  reflectionA: { dayMeant: '', why: '', noticed: '', surprised: '', understand: '' },
-  reflectionB: { dayMeant: '', why: '', noticed: '', surprised: '', understand: '' },
-  reflectionTogether: { commitment: '' }
-};
+function persist() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(S)); } catch(e) {}
+  flashSaved();
+}
 
-function persist() { saveState(state); }
+let savedFlashTimer;
+function flashSaved() {
+  const el = document.getElementById('auto-save-banner');
+  if (!el) return;
+  el.style.opacity = '1';
+  clearTimeout(savedFlashTimer);
+  savedFlashTimer = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
 
-// ─── HELPERS ─────────────────────────────────────────────────
-function nameA() { return state.nameA || 'Partner A'; }
-function nameB() { return state.nameB || 'Partner B'; }
+// ── HELPERS ───────────────────────────────────────────────────
+const nA = () => S.nameA || 'Partner A';
+const nB = () => S.nameB || 'Partner B';
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function computeScores(answers) {
   const scores = { words:0, time:0, touch:0, service:0, gifts:0 };
   for (const [lang, keys] of Object.entries(SCORING_KEY)) {
     keys.forEach(({ q, c }) => {
-      const ans = answers[q];
-      if (ans && ans.toUpperCase() === c) scores[lang]++;
+      if (answers[q] && answers[q].toUpperCase() === c) scores[lang]++;
     });
   }
   return scores;
 }
 
-function getRankedScores(scores) {
+function getRanked(scores) {
   return Object.entries(scores)
-    .sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => ({ key: k, score: v, ...LL_INFO[k] }));
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => ({ key:k, score:v, ...LL[k] }));
 }
 
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const pg = document.getElementById('page-' + id);
-  if (pg) pg.classList.add('active');
-  const nb = document.querySelector('[data-page="' + id + '"]');
-  if (nb) nb.classList.add('active');
-  state.currentPage = id;
-  persist();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function bind(id, obj, key, savedId) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = obj[key] || '';
+  const save = () => { obj[key] = el.value; persist(); if (savedId) showSaved(savedId); };
+  el.addEventListener('input', save);
+  el.addEventListener('change', save);
 }
 
 function showSaved(id) {
@@ -348,1213 +343,1449 @@ function showSaved(id) {
   setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-function bindTextarea(el, stateObj, key, savedId) {
-  if (!el) return;
-  el.value = stateObj[key] || '';
-  el.addEventListener('input', () => {
-    stateObj[key] = el.value;
-    persist();
-    if (savedId) showSaved(savedId);
+// ── GENERATE PERSONALIZED 30-DAY PLAN ────────────────────────
+// Builds 30 actions for partner P to do, weighted by the TARGET partner's scores
+function buildPersonalizedPlan(targetScores) {
+  if (!targetScores || !Object.keys(targetScores).length) {
+    // Fallback: cycle through all languages evenly
+    const plan = [];
+    const keys = ['words','time','touch','service','gifts'];
+    for (let d = 1; d <= 30; d++) {
+      const k = keys[(d-1) % keys.length];
+      plan.push({ day: d, ll: k, action: ACTION_POOL[k][(d-1) % ACTION_POOL[k].length] });
+    }
+    return plan;
+  }
+
+  const total = Object.values(targetScores).reduce((a,b)=>a+b, 0) || 1;
+  // Calculate how many of the 30 days each language gets
+  const alloc = {};
+  let assigned = 0;
+  const keys = Object.keys(targetScores).sort((a,b) => targetScores[b] - targetScores[a]);
+
+  keys.forEach((k, i) => {
+    if (i === keys.length - 1) {
+      alloc[k] = 30 - assigned;
+    } else {
+      alloc[k] = Math.max(1, Math.round((targetScores[k] / total) * 30));
+      assigned += alloc[k];
+    }
   });
+
+  // Build ordered list: days sorted by language, then shuffle within a fixed seed
+  const days = [];
+  for (const k of keys) {
+    const count = alloc[k];
+    const pool = ACTION_POOL[k];
+    for (let i = 0; i < count; i++) {
+      days.push({ ll: k, action: pool[i % pool.length] });
+    }
+  }
+
+  // Interleave: distribute different languages throughout the 30 days
+  // Simple approach: sort by language so each language's days are spaced out
+  const interleaved = [];
+  const buckets = {};
+  for (const k of keys) buckets[k] = days.filter(d => d.ll === k);
+  const maxBucket = Math.max(...Object.values(buckets).map(b => b.length));
+  for (let i = 0; i < maxBucket; i++) {
+    for (const k of keys) {
+      if (buckets[k][i]) interleaved.push(buckets[k][i]);
+    }
+  }
+
+  return interleaved.slice(0, 30).map((d, i) => ({ day: i+1, ll: d.ll, action: d.action }));
 }
 
-function bindInput(el, stateObj, key) {
-  if (!el) return;
-  el.value = stateObj[key] || '';
-  el.addEventListener('input', () => { stateObj[key] = el.value; persist(); });
+function getChallengeProgress(checker) {
+  return Object.values(checker.checked || {}).filter(Boolean).length;
 }
 
-// ─── RENDER NAV ──────────────────────────────────────────────
+function getProgressMsg(done) {
+  if (done === 30) return "You did it. 30 days. Both of you. On purpose.";
+  if (done >= 28) return "Almost there. The last few days are the ones that will stay with you.";
+  if (done >= 15) return "Halfway there. Whatever this month is bringing up, keep going.";
+  if (done >= 1)  return "You're just getting started. Keep going.";
+  return "Begin your first day when you're ready.";
+}
+
+// ── COMPATIBILITY INSIGHT ────────────────────────────────────
+function getCompatInsight() {
+  if (!S.quizA.done || !S.quizB.done) return '';
+  const rA = getRanked(S.quizA.scores)[0].key;
+  const rB = getRanked(S.quizB.scores)[0].key;
+  if (rA === rB) {
+    const names = { words:'Words of Affirmation', time:'Quality Time', touch:'Physical Touch', service:'Acts of Service', gifts:'Receiving Gifts' };
+    return `You both speak the same primary language: ${names[rA]}. That's a real strength. You likely already feel connected in the ways that matter most to each of you. The opportunity here is to keep speaking it intentionally, especially on the hard days.`;
+  }
+  const pairs = {
+    'words-time':    `${esc(nA())} needs to hear it. ${esc(nB())} needs to experience it together. The bridge? Conversations with full presence -- put the phone down and say the thing out loud.`,
+    'words-touch':   `${esc(nA())} lives for the right word. ${esc(nB())} lives for the right touch. Small pairings work beautifully here: hold their hand while you tell them what you love about them.`,
+    'words-service': `${esc(nA())} needs affirmation. ${esc(nB())} needs action. The good news: they complement beautifully. Saying "I did this for you because I love you" speaks both languages at once.`,
+    'words-gifts':   `${esc(nA())} needs to hear the love. ${esc(nB())} needs to see a symbol of it. A handwritten note tucked into a small gift speaks fluently in both directions.`,
+    'time-touch':    `You're both speaking languages of physical and emotional presence. The gap is smaller than you think. Shared time that includes physical closeness -- a walk, a slow dinner, an evening on the couch -- speaks to both.`,
+    'time-service':  `${esc(nA())} feels loved when you show up. ${esc(nB())} feels loved when you step in. You may have been loving each other perfectly -- just in different rooms. Try being together while you handle something for them.`,
+    'time-gifts':    `${esc(nA())} treasures presence. ${esc(nB())} treasures thoughtfulness. These are actually deeply related. A small token brought back from an experience you shared together speaks both languages beautifully.`,
+    'touch-service': `${esc(nA())} needs to feel your closeness physically. ${esc(nB())} needs to feel your love through action. These languages require intention to learn -- but once you do, you'll both feel deeply seen.`,
+    'touch-gifts':   `${esc(nA())} feels love in the body. ${esc(nB())} feels love in the gesture. These two languages are both about being thought of. A physical gift you bring specifically for them, delivered with a real hug, covers both.`,
+    'service-gifts': `You both speak languages of thoughtful action. ${esc(nA())} values effort. ${esc(nB())} values the symbol of effort. The gap here is small. Handling something for them and bringing home a small token both say the same thing: I was thinking about you.`
+  };
+  const key = [rA, rB].sort().join('-');
+  return pairs[key] || `You speak different primary languages, and that's a growth opportunity. Learning to give what the other person needs most is where the real magic happens.`;
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function navTo(page) {
+  S.currentPage = page;
+  persist();
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const pg = document.getElementById('page-' + page);
+  if (pg) { pg.classList.add('active'); }
+  const nb = document.querySelector(`.nav-btn[data-page="${page}"]`);
+  if (nb) { nb.classList.add('active'); }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Re-bind fields for this page
+  setTimeout(() => bindPageFields(page), 50);
+}
+
+function bindPageFields(page) {
+  if (page === 'howto') bindHowToFields();
+  if (page === 'quiz') { renderQuizBody('A'); renderQuizBody('B'); }
+  if (page === 'results') { bindProfileFields(); drawChart(); }
+  if (page === 'understand') { bindUnderstandFields(); drawCompareChart(); }
+  if (page === 'daily') bindDailyFields();
+  if (page === 'challenge') bindChallengeFields();
+  if (page === 'reflections') bindReflectionFields();
+}
+
+// ── RENDER NAV ────────────────────────────────────────────────
 function renderNav() {
-  const hasNames = state.nameA && state.nameB;
+  const pages = [
+    { id:'cover',       icon:'🌸', label:'Home' },
+    { id:'howto',       icon:'📖', label:'How To Use' },
+    { id:'quiz',        icon:'✏️',  label:'Our Quizzes' },
+    { id:'results',     icon:'💡', label:'Results' },
+    { id:'understand',  icon:'🗺️', label:'Understand Each Other' },
+    { id:'daily',       icon:'🌿', label:'Apply Daily' },
+    { id:'challenge',   icon:'🌟', label:'30-Day Challenge' },
+    { id:'reflections', icon:'📝', label:'Reflections' },
+  ];
   return `
-  <nav class="app-nav" id="main-nav">
-    <span class="nav-logo">Love Languages<span>Workbook</span></span>
-    <div class="nav-divider"></div>
-    <button class="nav-btn ${state.currentPage==='cover'?'active':''}" data-page="cover" onclick="showPage('cover')">
-      <span class="nav-icon">🌸</span> Home
-    </button>
-    <button class="nav-btn ${state.currentPage==='howto'?'active':''}" data-page="howto" onclick="showPage('howto')">
-      <span class="nav-icon">📖</span> How To Use
-    </button>
-    <button class="nav-btn ${state.currentPage==='quiz'?'active':''}" data-page="quiz" onclick="showPage('quiz')">
-      <span class="nav-icon">✏️</span> Take the Quiz
-    </button>
-    <button class="nav-btn ${state.currentPage==='results'?'active':''}" data-page="results" onclick="showPage('results')">
-      <span class="nav-icon">💡</span> Results
-    </button>
-    <button class="nav-btn ${state.currentPage==='understand'?'active':''}" data-page="understand" onclick="showPage('understand')">
-      <span class="nav-icon">🗺️</span> Understand Each Other
-    </button>
-    <button class="nav-btn ${state.currentPage==='daily'?'active':''}" data-page="daily" onclick="showPage('daily')">
-      <span class="nav-icon">🌿</span> Apply Daily
-    </button>
-    <button class="nav-btn ${state.currentPage==='challenge'?'active':''}" data-page="challenge" onclick="showPage('challenge')">
-      <span class="nav-icon">🌟</span> 30-Day Challenge
-    </button>
-  </nav>`;
+<nav class="app-nav" id="main-nav">
+  <span class="nav-logo">Love Languages<small>Workbook by The Clarity Desk</small></span>
+  <div class="nav-sep"></div>
+  ${pages.map(p => `<button class="nav-btn${S.currentPage===p.id?' active':''}" data-page="${p.id}" onclick="navTo('${p.id}')"><span class="ni">${p.icon}</span>${p.label}</button>`).join('')}
+  <div class="nav-actions">
+    <button class="nav-print-btn" onclick="printWorkbook()">🖨️ Print Workbook</button>
+  </div>
+</nav>
+<div class="print-banner no-print" style="display:none;" id="print-banner-top">
+  <p>Ready to print your workbook as a PDF? Click below to open the print dialog.</p>
+  <button class="btn-print" onclick="printWorkbook()">🖨️ Print / Save as PDF</button>
+</div>
+<div class="auto-save-banner" id="auto-save-banner" style="opacity:0;transition:opacity 0.4s;">
+  ✓ Progress saved
+</div>`;
 }
 
-// ─── RENDER COVER ────────────────────────────────────────────
+// ── COVER PAGE ────────────────────────────────────────────────
 function renderCover() {
+  const hasNames = S.nameA && S.nameB;
   return `
-  <div class="page ${state.currentPage==='cover'?'active':''}" id="page-cover">
-    <div class="cover">
-      <p class="cover-eyebrow">The Clarity Desk</p>
-      <h1 class="cover-title">The Love Languages<br><em>Workbook</em></h1>
-      <p class="cover-subtitle">Discover how you give and receive love and transform your relationship together.</p>
-      <div class="cover-pills">
-        <span class="pill pill-words">💬 Words</span>
-        <span class="pill pill-time">⏱ Time</span>
-        <span class="pill pill-touch">🤝 Touch</span>
-        <span class="pill pill-service">🛠 Service</span>
-        <span class="pill pill-gifts">🎁 Gifts</span>
-      </div>
-      <div class="name-card">
-        <h2>Let's make this personal</h2>
-        <p>Enter both names so this workbook speaks directly to you.</p>
-        <div class="name-row">
-          <div class="name-field">
-            <label>Your name</label>
-            <input type="text" id="input-nameA" placeholder="e.g. Jamie" value="${escHtml(state.nameA)}" />
-          </div>
-          <div class="name-field">
-            <label>Your partner's name</label>
-            <input type="text" id="input-nameB" placeholder="e.g. Alex" value="${escHtml(state.nameB)}" />
-          </div>
-        </div>
-        <button class="btn btn-primary btn-full" onclick="handleBegin()">
-          Begin Our Journey ✦
-        </button>
-        ${state.nameA && state.nameB ? `<p class="text-muted mt-2 text-center">Welcome back, ${escHtml(state.nameA)} &amp; ${escHtml(state.nameB)}.</p>` : ''}
-      </div>
+<div class="page${S.currentPage==='cover'?' active':''}" id="page-cover">
+  <div class="cover-page">
+    <p class="cover-badge">The Clarity Desk</p>
+    <h1 class="cover-title">The Love Languages<em>Workbook</em></h1>
+    <p class="cover-sub">Discover how you give and receive love and transform your relationship.</p>
+    <div class="cover-pills">
+      <span class="cpill cpill-words">💬 Words</span>
+      <span class="cpill cpill-time">⏱ Time</span>
+      <span class="cpill cpill-touch">🤝 Touch</span>
+      <span class="cpill cpill-service">🛠 Service</span>
+      <span class="cpill cpill-gifts">🎁 Gifts</span>
     </div>
-  </div>`;
+    <div class="name-card">
+      <h2 class="name-card-title">Make it personal</h2>
+      <p class="name-card-sub">Enter both names so this workbook speaks directly to you.</p>
+      <div class="name-row">
+        <div class="name-field">
+          <label for="inp-nameA">Your name</label>
+          <input id="inp-nameA" type="text" placeholder="e.g. Jamie" value="${esc(S.nameA)}" />
+        </div>
+        <div class="name-field">
+          <label for="inp-nameB">Your partner's name</label>
+          <input id="inp-nameB" type="text" placeholder="e.g. Alex" value="${esc(S.nameB)}" />
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="handleBegin()">
+        Begin Our Journey ✦
+      </button>
+      ${hasNames ? `<p class="welcome-back">Welcome back, ${esc(nA())} &amp; ${esc(nB())}. Your progress is saved.</p>` : ''}
+    </div>
+    <div class="settings-row mt-4" style="max-width:480px;width:100%;position:relative;z-index:1;">
+      <p>Want to start fresh? This will erase all saved progress.</p>
+      <button class="btn btn-ghost btn-sm" onclick="startOver()">Start Over</button>
+    </div>
+  </div>
+</div>`;
 }
 
 function handleBegin() {
-  const a = document.getElementById('input-nameA').value.trim();
-  const b = document.getElementById('input-nameB').value.trim();
+  const a = (document.getElementById('inp-nameA')||{}).value?.trim();
+  const b = (document.getElementById('inp-nameB')||{}).value?.trim();
   if (!a || !b) { alert('Please enter both names to begin.'); return; }
-  state.nameA = a; state.nameB = b; persist();
+  S.nameA = a; S.nameB = b;
+  S.showGuidedBanner = true;
+  persist();
   renderApp();
-  showPage('howto');
+  navTo('howto');
 }
 
-// ─── RENDER HOW TO USE ───────────────────────────────────────
+function startOver() {
+  if (!confirm('Are you sure you want to start over? All names, quiz answers, challenge progress, and reflections will be erased permanently.')) return;
+  localStorage.removeItem(STATE_KEY);
+  S = defaultState();
+  renderApp();
+  navTo('cover');
+}
+
+// ── HOW TO USE ────────────────────────────────────────────────
 function renderHowTo() {
   return `
-  <div class="page ${state.currentPage==='howto'?'active':''}" id="page-howto">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Getting Started</span>
-        <h1>How to Use This <em>Workbook</em></h1>
-        <p>Four guidelines to get the most from this experience.</p>
+<div class="page${S.currentPage==='howto'?' active':''}" id="page-howto">
+  <div class="section-wrap">
+    ${S.showGuidedBanner ? `
+    <div class="guided-banner" id="guided-banner">
+      <span class="gb-icon">🧭</span>
+      <div class="gb-text">
+        <strong>Where to start</strong>
+        <p>Start here: read the guidelines, then each take your quiz separately on the next page. Then explore your results together.</p>
       </div>
-      <ul class="guideline-list">
-        <li class="guideline-item">
-          <div class="guideline-num">1</div>
-          <div>
-            <strong>Complete your quiz independently before comparing answers.</strong>
-            <p>Resist the urge to peek at each other's responses. The quiz works best when your answers come from your own honest experience, not from anticipating what your partner might say.</p>
-          </div>
-        </li>
-        <li class="guideline-item">
-          <div class="guideline-num">2</div>
-          <div>
-            <strong>There are no right or wrong love languages.</strong>
-            <p>All five are valid, meaningful, and beautiful. The goal isn't to rank your language above your partner's. It is to understand that both of your needs are real, legitimate, and worth meeting.</p>
-          </div>
-        </li>
-        <li class="guideline-item">
-          <div class="guideline-num">3</div>
-          <div>
-            <strong>Revisit this workbook once a year.</strong>
-            <p>Your primary love language can shift over time, during major life changes, seasons of stress, or new chapters in your relationship. What you need at 28 may be different from what you need at 38.</p>
-          </div>
-        </li>
-        <li class="guideline-item">
-          <div class="guideline-num">4</div>
-          <div>
-            <strong>Use this as a starting point for conversation, not a final verdict.</strong>
-            <p>Your quiz result is a compass, not a cage. Use it to open doors, not close them.</p>
-          </div>
-        </li>
-      </ul>
+      <button class="gb-close" onclick="dismissBanner()" title="Dismiss">✕</button>
+    </div>` : ''}
 
-      <div class="card card-warm mb-3">
-        <h3>A Note on Primary &amp; Secondary Languages</h3>
-        <p style="color:var(--textMid); font-size:0.92rem; margin-top:0.5rem;">Most people have one dominant love language that when spoken fluently makes them feel most seen and deeply loved. But almost everyone also has a secondary language. As you work through this workbook, pay attention to both. Your primary language is what you need most consistently. Your secondary language often becomes more important during specific seasons, including stress, transition, and grief.</p>
-      </div>
+    <div class="section-header mb-3">
+      <span class="sec-tag">Getting Started</span>
+      <h1 class="sec-title">How to Use This <em>Workbook</em></h1>
+      <p class="sec-desc">Four guidelines to get the most from this experience.</p>
+    </div>
 
-      <div class="card">
-        <h2 style="margin-bottom:1rem;">Warm-Up Prompt</h2>
-        <p class="text-muted mb-2">Take a moment before diving into the quiz. Each partner answers independently:</p>
-        <p class="italic mb-3" style="color:var(--brown); font-family:'Playfair Display',serif;">"Right now, the way I most feel loved is..."</p>
-        <div class="warmup-grid">
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameA())}'s answer</label>
-            <textarea id="warmup-a" rows="3" placeholder="Write freely here..."></textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameB())}'s answer</label>
-            <textarea id="warmup-b" rows="3" placeholder="Write freely here..."></textarea>
-          </div>
+    <ul class="guideline-list">
+      <li class="guideline-item"><div class="g-num">1</div><div><strong>Complete your quiz independently before comparing answers.</strong><p>Resist the urge to peek at each other's responses. The quiz works best when your answers come from your own honest experience, not from anticipating what your partner might say.</p></div></li>
+      <li class="guideline-item"><div class="g-num">2</div><div><strong>There are no right or wrong love languages.</strong><p>All five are valid, meaningful, and beautiful. The goal isn't to rank your language above your partner's. It is to understand that both of your needs are real, legitimate, and worth meeting.</p></div></li>
+      <li class="guideline-item"><div class="g-num">3</div><div><strong>Revisit this workbook once a year.</strong><p>Your primary love language can shift over time, during major life changes, seasons of stress, or new chapters in your relationship.</p></div></li>
+      <li class="guideline-item"><div class="g-num">4</div><div><strong>Use this as a starting point for conversation, not a final verdict.</strong><p>Your quiz result is a compass, not a cage. Use it to open doors, not close them.</p></div></li>
+    </ul>
+
+    <div class="card card-warm mb-3">
+      <h3>A Note on Primary &amp; Secondary Languages</h3>
+      <p class="mt-1" style="font-size:0.92rem;">Most people have one dominant love language. But almost everyone also has a secondary language. Pay attention to both. Your primary language is what you need most consistently. Your secondary language often becomes more important during specific seasons, including stress, transition, and grief.</p>
+    </div>
+
+    <div class="card mb-3">
+      <h2>Warm-Up Prompt</h2>
+      <p class="italic mb-3" style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--plum);">"Right now, the way I most feel loved is..."</p>
+      <div class="two-col">
+        <div class="field-group">
+          <label class="field-label" for="warmup-a">${esc(nA())}'s answer</label>
+          <textarea id="warmup-a" rows="3" placeholder="Write freely here..."></textarea>
         </div>
-        <span class="saved-indicator" id="saved-warmup">✓ Saved</span>
-      </div>
-
-      <div class="card ll-guide-card" style="border:none; padding:1.5rem 2rem; background:var(--white);">
-        <h2 style="margin-bottom:1.2rem;">The Five Love Languages</h2>
-        <div class="ll-guide-grid">
-          ${Object.entries(LL_INFO).map(([k, ll]) => `
-          <div class="ll-guide-card ${ll.cls}">
-            <div class="ll-header">
-              <span class="ll-icon">${ll.icon}</span>
-              <span class="ll-name">${ll.label}</span>
-            </div>
-            <p>${LL_DESCRIPTIONS[k].full.substring(0,160)}...</p>
-            <p class="ll-looks"><strong>Needs:</strong> ${LL_DESCRIPTIONS[k].needs.substring(0,120)}...</p>
-          </div>`).join('')}
+        <div class="field-group">
+          <label class="field-label" for="warmup-b">${esc(nB())}'s answer</label>
+          <textarea id="warmup-b" rows="3" placeholder="Write freely here..."></textarea>
         </div>
       </div>
+      <span class="saved-ind" id="si-warmup">✓ Saved</span>
+    </div>
 
-      <div class="flex-row mt-3" style="justify-content:flex-end;">
-        <button class="btn btn-primary" onclick="showPage('quiz')">Take the Quiz &rarr;</button>
+    <div class="card mb-3">
+      <h2 class="mb-3">The Five Love Languages</h2>
+      <div class="ll-guide-grid">
+        ${Object.entries(LL).map(([k,ll])=>`
+        <div class="ll-guide-card ${ll.cls}">
+          <div class="llh"><span class="lli">${ll.icon}</span><span class="lln">${ll.label}</span></div>
+          <p>${LL_DESC[k].full.substring(0,160)}...</p>
+          <p style="font-size:0.82rem;font-style:italic;color:var(--plum-mid);">${esc(LL_DESC[k].quote)}</p>
+        </div>`).join('')}
       </div>
     </div>
-  </div>`;
+
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="navTo('quiz')">Take the Quiz &rarr;</button>
+    </div>
+  </div>
+</div>`;
 }
 
-function bindWarmupFields() {
-  bindTextarea(document.getElementById('warmup-a'), state, 'warmupA', 'saved-warmup');
-  bindTextarea(document.getElementById('warmup-b'), state, 'warmupB', 'saved-warmup');
+function bindHowToFields() {
+  bind('warmup-a', S, 'warmupA', 'si-warmup');
+  bind('warmup-b', S, 'warmupB', 'si-warmup');
 }
 
-// ─── RENDER QUIZ ─────────────────────────────────────────────
-let quizPartner = 'A'; // which partner is taking the quiz right now
-let quizCurrentQ = 1;
+function dismissBanner() {
+  S.showGuidedBanner = false; persist();
+  const el = document.getElementById('guided-banner');
+  if (el) el.remove();
+}
 
-function renderQuiz() {
+// ── QUIZ PAGE ─────────────────────────────────────────────────
+function renderQuizPage() {
   return `
-  <div class="page ${state.currentPage==='quiz'?'active':''}" id="page-quiz">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Section One</span>
-        <h1>Discover Your Love <em>Language</em></h1>
-        <p>Take the quiz independently. 20 questions. No right or wrong answers.</p>
-      </div>
-      <div class="quiz-partner-toggle">
-        <button class="partner-tab ${quizPartner==='A'?'active':''}" id="tab-partnerA" onclick="switchQuizPartner('A')">
-          ${escHtml(nameA())}
-          ${state.quizDoneA ? ' ✓' : ''}
-        </button>
-        <button class="partner-tab ${quizPartner==='B'?'active':''}" id="tab-partnerB" onclick="switchQuizPartner('B')">
-          ${escHtml(nameB())}
-          ${state.quizDoneB ? ' ✓' : ''}
-        </button>
-      </div>
-      <div id="quiz-body"></div>
+<div class="page${S.currentPage==='quiz'?' active':''}" id="page-quiz">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Section One</span>
+      <h1 class="sec-title">Our <em>Quizzes</em></h1>
+      <p class="sec-desc">Take the quiz independently. 20 questions each. No right or wrong answers.</p>
     </div>
-  </div>`;
+
+    <div class="partner-switcher" id="partner-switcher">
+      <button class="psw-btn${S.activeQuizPartner==='A'?' active':''}" id="psw-A" onclick="switchQuizTab('A')">
+        ${esc(nA())} ${S.quizA.done?'✓':''}
+      </button>
+      <button class="psw-btn${S.activeQuizPartner==='B'?' active':''}" id="psw-B" onclick="switchQuizTab('B')">
+        ${esc(nB())} ${S.quizB.done?'✓':''}
+      </button>
+    </div>
+
+    <div id="quiz-panel-A" style="display:${S.activeQuizPartner==='A'?'block':'none'};">
+      <div id="quiz-body-A"></div>
+    </div>
+    <div id="quiz-panel-B" style="display:${S.activeQuizPartner==='B'?'block':'none'};">
+      <div id="quiz-body-B"></div>
+    </div>
+  </div>
+</div>`;
 }
 
-function switchQuizPartner(p) {
-  quizPartner = p;
-  quizCurrentQ = 1;
-  document.querySelectorAll('.partner-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-partner' + p).classList.add('active');
-  renderQuizBody();
+function switchQuizTab(p) {
+  S.activeQuizPartner = p; persist();
+  document.querySelectorAll('.psw-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('psw-' + p);
+  if (btn) btn.classList.add('active');
+  ['A','B'].forEach(q => {
+    const panel = document.getElementById('quiz-panel-' + q);
+    if (panel) panel.style.display = q === p ? 'block' : 'none';
+  });
 }
 
-function renderQuizBody() {
-  const answers = quizPartner === 'A' ? state.quizAnswersA : state.quizAnswersB;
-  const done    = quizPartner === 'A' ? state.quizDoneA  : state.quizDoneB;
-  const pName   = quizPartner === 'A' ? nameA() : nameB();
+function renderQuizBody(p) {
+  const container = document.getElementById('quiz-body-' + p);
+  if (!container) return;
 
-  if (done) {
-    const scores = quizPartner === 'A' ? state.scoresA : state.scoresB;
-    const ranked = getRankedScores(scores);
-    document.getElementById('quiz-body').innerHTML = `
-      <div class="card" style="text-align:center; padding:2.5rem;">
-        <div style="font-size:2.5rem; margin-bottom:1rem;">🎉</div>
-        <h2 style="margin-bottom:0.5rem;">${escHtml(pName)}'s quiz is complete!</h2>
-        <p class="text-muted mb-3">Primary language: <strong>${LL_INFO[ranked[0].key].icon} ${ranked[0].label}</strong></p>
-        <div class="score-bars">
-          ${ranked.map(r => `
-          <div class="score-bar-row">
-            <span class="score-bar-label">${r.icon} ${r.label}</span>
-            <div class="score-bar-track"><div class="score-bar-fill" style="width:${(r.score/8*100).toFixed(0)}%; background:${r.color};"></div></div>
-            <span class="score-bar-num">${r.score}</span>
-          </div>`).join('')}
-        </div>
-        <div class="flex-row mt-3" style="justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="retakeQuiz('${quizPartner}')">Retake Quiz</button>
-          <button class="btn btn-primary" onclick="showPage('results')">See Full Results &rarr;</button>
-        </div>
-      </div>`;
+  const quiz   = p === 'A' ? S.quizA : S.quizB;
+  const pName  = p === 'A' ? nA() : nB();
+  const curQ   = p === 'A' ? S.quizCurrentQA : S.quizCurrentQB;
+
+  if (quiz.done) {
+    const ranked = getRanked(quiz.scores);
+    container.innerHTML = `
+    <div class="quiz-done-card">
+      <div class="quiz-done-icon">🎉</div>
+      <h2>Done, ${esc(pName)}!</h2>
+      <p>Your primary love language is <strong>${ranked[0].icon} ${ranked[0].label}</strong>.</p>
+      <div class="score-bars mb-3" style="text-align:left;max-width:400px;margin:1rem auto;">
+        ${ranked.map(r=>`
+        <div class="sbar-row">
+          <span class="sbar-label">${r.icon} ${r.label}</span>
+          <div class="sbar-track"><div class="sbar-fill" style="width:${Math.round(r.score/r.max*100)}%;background:${r.color};"></div></div>
+          <span class="sbar-num">${r.score}</span>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="retakeQuiz('${p}')">Retake Quiz</button>
+        <button class="btn btn-primary" onclick="navTo('results')">See Full Results &rarr;</button>
+      </div>
+    </div>`;
     return;
   }
 
-  const q = QUIZ_QUESTIONS[quizCurrentQ - 1];
-  const answered = Object.keys(answers).length;
+  const answered = Object.keys(quiz.answers).length;
   const pct = Math.round(answered / 20 * 100);
+  const q = QUIZ_QUESTIONS[curQ - 1];
 
-  document.getElementById('quiz-body').innerHTML = `
-    <div class="quiz-progress-bar">
-      <div class="quiz-progress-fill" style="width:${pct}%"></div>
-    </div>
-    <div class="quiz-question-card">
-      <div class="quiz-q-num">${escHtml(pName)} &bull; Question ${quizCurrentQ} of 20</div>
-      <div class="quiz-options">
-        <div class="quiz-option ${answers[quizCurrentQ]==='A'?'selected':''}" onclick="selectAnswer('A')">
-          <div class="quiz-option-letter">A</div>
-          <div class="quiz-option-text">${escHtml(q.a)}</div>
-        </div>
-        <div class="quiz-option ${answers[quizCurrentQ]==='B'?'selected':''}" onclick="selectAnswer('B')">
-          <div class="quiz-option-letter">B</div>
-          <div class="quiz-option-text">${escHtml(q.b)}</div>
-        </div>
+  container.innerHTML = `
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-label">${esc(pName)} &bull; Question ${curQ} of 20</div>
+    <div class="quiz-pbar"><div class="quiz-pbar-fill" style="width:${pct}%"></div></div>
+  </div>
+  <div class="quiz-q-card">
+    <div class="quiz-q-label">${esc(pName)} &bull; Q${curQ} of 20 &bull; ${answered} answered</div>
+    <div class="quiz-options">
+      <div class="quiz-opt${quiz.answers[curQ]==='A'?' selected':''}" onclick="selectAnswer('${p}','A')">
+        <div class="quiz-opt-letter">A</div>
+        <div class="quiz-opt-text">${esc(q.a)}</div>
+      </div>
+      <div class="quiz-opt${quiz.answers[curQ]==='B'?' selected':''}" onclick="selectAnswer('${p}','B')">
+        <div class="quiz-opt-letter">B</div>
+        <div class="quiz-opt-text">${esc(q.b)}</div>
       </div>
     </div>
-    <div class="quiz-nav-row">
-      <button class="btn btn-ghost btn-sm" onclick="quizPrev()" ${quizCurrentQ===1?'disabled':''}>
-        &larr; Previous
-      </button>
-      <span class="quiz-counter">${answered} / 20 answered</span>
-      ${quizCurrentQ < 20
-        ? `<button class="btn btn-primary btn-sm" onclick="quizNext()">Next &rarr;</button>`
-        : `<button class="btn btn-primary btn-sm" onclick="quizSubmit()" ${answered<20?'disabled':''}>Submit Quiz</button>`
-      }
-    </div>`;
+  </div>
+  <div class="quiz-nav">
+    <button class="btn btn-ghost btn-sm" onclick="quizPrev('${p}')" ${curQ===1?'disabled':''}>&larr; Previous</button>
+    <span class="quiz-counter">${answered} / 20 answered</span>
+    ${curQ < 20
+      ? `<button class="btn btn-primary btn-sm" onclick="quizNext('${p}')">Next &rarr;</button>`
+      : `<button class="btn btn-primary btn-sm" onclick="quizSubmit('${p}')" ${answered<20?'disabled':''}>Submit Quiz ✓</button>`
+    }
+  </div>`;
 }
 
-function selectAnswer(choice) {
-  const answers = quizPartner === 'A' ? state.quizAnswersA : state.quizAnswersB;
-  answers[quizCurrentQ] = choice;
+function selectAnswer(p, choice) {
+  const quiz = p === 'A' ? S.quizA : S.quizB;
+  const curQ = p === 'A' ? S.quizCurrentQA : S.quizCurrentQB;
+  quiz.answers[curQ] = choice;
   persist();
-  renderQuizBody();
-  // auto-advance after a short delay
-  if (quizCurrentQ < 20) {
-    setTimeout(() => { quizCurrentQ++; renderQuizBody(); }, 320);
+  renderQuizBody(p);
+  // Auto-advance
+  if (curQ < 20) {
+    setTimeout(() => {
+      if (p === 'A') S.quizCurrentQA = curQ + 1;
+      else           S.quizCurrentQB = curQ + 1;
+      renderQuizBody(p);
+    }, 320);
   }
 }
 
-function quizNext() {
-  if (quizCurrentQ < 20) { quizCurrentQ++; renderQuizBody(); }
-}
-function quizPrev() {
-  if (quizCurrentQ > 1) { quizCurrentQ--; renderQuizBody(); }
+function quizNext(p) {
+  if (p === 'A' && S.quizCurrentQA < 20) { S.quizCurrentQA++; persist(); renderQuizBody('A'); }
+  if (p === 'B' && S.quizCurrentQB < 20) { S.quizCurrentQB++; persist(); renderQuizBody('B'); }
 }
 
-function quizSubmit() {
-  const answers = quizPartner === 'A' ? state.quizAnswersA : state.quizAnswersB;
-  if (Object.keys(answers).length < 20) { alert('Please answer all 20 questions before submitting.'); return; }
-  const scores = computeScores(answers);
-  if (quizPartner === 'A') { state.scoresA = scores; state.quizDoneA = true; }
-  else                     { state.scoresB = scores; state.quizDoneB = true; }
+function quizPrev(p) {
+  if (p === 'A' && S.quizCurrentQA > 1) { S.quizCurrentQA--; persist(); renderQuizBody('A'); }
+  if (p === 'B' && S.quizCurrentQB > 1) { S.quizCurrentQB--; persist(); renderQuizBody('B'); }
+}
+
+function quizSubmit(p) {
+  const quiz = p === 'A' ? S.quizA : S.quizB;
+  if (Object.keys(quiz.answers).length < 20) { alert('Please answer all 20 questions before submitting.'); return; }
+  quiz.scores = computeScores(quiz.answers);
+  quiz.done   = true;
   persist();
-  renderQuizBody();
+  renderQuizBody(p);
+  // Update switcher buttons
+  const btn = document.getElementById('psw-' + p);
+  if (btn) {
+    const pName = p === 'A' ? nA() : nB();
+    btn.textContent = esc(pName) + ' ✓';
+  }
 }
 
 function retakeQuiz(p) {
-  if (!confirm('Retake the quiz for ' + (p==='A'?nameA():nameB()) + '? Your previous answers will be cleared.')) return;
-  if (p === 'A') { state.quizAnswersA = {}; state.quizDoneA = false; state.scoresA = {}; }
-  else           { state.quizAnswersB = {}; state.quizDoneB = false; state.scoresB = {}; }
+  const pName = p === 'A' ? nA() : nB();
+  if (!confirm(`Retake the quiz for ${pName}? Your previous answers will be cleared.`)) return;
+  if (p === 'A') { S.quizA = { answers:{}, done:false, scores:{} }; S.quizCurrentQA = 1; }
+  else           { S.quizB = { answers:{}, done:false, scores:{} }; S.quizCurrentQB = 1; }
   persist();
-  quizCurrentQ = 1;
-  renderQuizBody();
+  renderQuizBody(p);
+  const btn = document.getElementById('psw-' + p);
+  if (btn) btn.textContent = (p==='A'?nA():nB());
 }
 
-// ─── RENDER RESULTS ──────────────────────────────────────────
+// ── RESULTS PAGE ─────────────────────────────────────────────
 function renderResults() {
+  const neitherDone = !S.quizA.done && !S.quizB.done;
   return `
-  <div class="page ${state.currentPage==='results'?'active':''}" id="page-results">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Section One</span>
-        <h1>Your <em>Results</em></h1>
-        <p>What your love language says about how you love and how you need to be loved.</p>
+<div class="page${S.currentPage==='results'?' active':''}" id="page-results">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Section One</span>
+      <h1 class="sec-title">Your <em>Results</em></h1>
+      <p class="sec-desc">What your love language says about how you love and how you need to be loved.</p>
+    </div>
+
+    ${neitherDone ? `
+    <div class="card card-warm text-center">
+      <p style="font-size:1.1rem;font-family:'Cormorant Garamond',serif;color:var(--plum);margin-bottom:1rem;">No quiz results yet.</p>
+      <p class="text-muted mb-3">Complete the quiz first to see your results here.</p>
+      <button class="btn btn-primary" onclick="navTo('quiz')">Take the Quiz &rarr;</button>
+    </div>` : `
+
+    <div class="results-hero">
+      ${renderPartnerResultCard('A')}
+      ${renderPartnerResultCard('B')}
+    </div>
+
+    ${S.quizA.done && S.quizB.done ? `
+    <div class="compat-card">
+      <h2>Compatibility Snapshot</h2>
+      <p class="compat-insight">${getCompatInsight()}</p>
+    </div>
+
+    <div class="chart-wrap">
+      <h3 class="mb-2">Score Comparison</h3>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--mauve)"></div>${esc(nA())}</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--sage)"></div>${esc(nB())}</div>
       </div>
-      ${(!state.quizDoneA && !state.quizDoneB) ? `
-        <div class="card card-warm text-center">
-          <p style="font-size:1.1rem; color:var(--brown); font-family:'Playfair Display',serif; margin-bottom:1rem;">No quiz results yet.</p>
-          <p class="text-muted mb-3">Complete the quiz first to see your results here.</p>
-          <button class="btn btn-primary" onclick="showPage('quiz')">Take the Quiz &rarr;</button>
-        </div>` : renderResultsContent()}
+      <canvas id="results-chart" height="220"></canvas>
+    </div>
+
+    <div class="how-to-love-grid">
+      ${renderHowToLoveCard('A')}
+      ${renderHowToLoveCard('B')}
+    </div>
+
+    <div class="card mb-3">
+      <div class="flex-between mb-2">
+        <h2>Email Your Results</h2>
+      </div>
+      <p class="text-muted mb-3">Open your email with a pre-written summary of both love languages.</p>
+      <button class="btn btn-secondary" onclick="emailResults()">✉️ Email Our Results</button>
+    </div>
+
+    <div class="card mb-3">
+      <h2 class="mb-2">Shareable Results Card</h2>
+      <div class="share-card" id="share-card">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">💞</div>
+        <div class="share-names">${esc(nA())} &amp; ${esc(nB())}</div>
+        <div class="share-langs">
+          ${S.quizA.done ? `<div class="share-lang-line">${esc(nA())} speaks <strong>${getRanked(S.quizA.scores)[0].icon} ${getRanked(S.quizA.scores)[0].label}</strong></div>` : ''}
+          ${S.quizB.done ? `<div class="share-lang-line">${esc(nB())} speaks <strong>${getRanked(S.quizB.scores)[0].icon} ${getRanked(S.quizB.scores)[0].label}</strong></div>` : ''}
+        </div>
+        <p style="font-size:0.78rem;color:var(--plum-mid);font-style:italic;">Discovered with The Clarity Desk</p>
+      </div>
+      <div class="text-center">
+        <button class="btn btn-secondary btn-sm" onclick="copyShareCard()">📋 Copy Results Text</button>
+      </div>
+    </div>
+    ` : ''}
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.5rem;color:var(--plum);margin-bottom:0.5rem;">My Love Language Profile</h2>
+    <p class="text-muted mb-3">Complete this individually after reviewing your quiz results.</p>
+    <div class="two-col">
+      ${renderProfileCard('A')}
+      ${renderProfileCard('B')}
+    </div>
+
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="navTo('understand')">Understand Each Other &rarr;</button>
+    </div>
+    `}
+  </div>
+</div>`;
+}
+
+function renderPartnerResultCard(p) {
+  const quiz  = p === 'A' ? S.quizA : S.quizB;
+  const pName = p === 'A' ? nA() : nB();
+  const cls   = p === 'A' ? 'card-a' : 'card-b';
+  const badge = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+
+  if (!quiz.done) return `
+  <div class="result-partner-card ${cls}">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <p class="text-muted">Quiz not completed yet.</p>
+    <button class="btn btn-primary btn-sm mt-2" onclick="navTo('quiz');switchQuizTab('${p}')">Take Quiz</button>
+  </div>`;
+
+  const ranked = getRanked(quiz.scores);
+  return `
+  <div class="result-partner-card ${cls}">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <span class="result-lang-badge">Primary Language</span>
+    <div class="result-primary-lang">
+      <span class="result-lang-icon">${ranked[0].icon}</span>
+      <span class="result-lang-name">${ranked[0].label}</span>
+    </div>
+    <p style="font-size:0.83rem;font-style:italic;font-family:'Cormorant Garamond',serif;color:var(--plum-mid);margin-bottom:1rem;">${esc(LL_DESC[ranked[0].key].quote)}</p>
+    <div class="score-bars">
+      ${ranked.map(r=>`
+      <div class="sbar-row">
+        <span class="sbar-label">${r.icon} ${r.label}</span>
+        <div class="sbar-track"><div class="sbar-fill" style="width:${Math.round(r.score/r.max*100)}%;background:${r.color};"></div></div>
+        <span class="sbar-num">${r.score}</span>
+      </div>`).join('')}
     </div>
   </div>`;
 }
 
-function renderResultsContent() {
-  let html = '';
+function renderHowToLoveCard(p) {
+  // p = which partner we're showing tips FOR (the one being loved)
+  // The other partner reads this
+  const quiz   = p === 'A' ? S.quizA : S.quizB;
+  const pName  = p === 'A' ? nA() : nB();
+  const reader = p === 'A' ? nB() : nA(); // who should read this
+  const cls    = p === 'A' ? '' : 'sage-border';
+  if (!quiz.done) return `<div class="htl-card ${cls}"><p class="text-muted">Complete ${esc(pName)}'s quiz to see personalized tips.</p></div>`;
 
-  // Partner tabs
-  html += `<div class="tab-row">
-    <button class="tab-btn active" id="result-tab-A" onclick="switchResultTab('A')">${escHtml(nameA())}</button>
-    <button class="tab-btn" id="result-tab-B" onclick="switchResultTab('B')">${escHtml(nameB())}</button>
-    ${state.quizDoneA && state.quizDoneB ? `<button class="tab-btn" id="result-tab-both" onclick="switchResultTab('both')">Side by Side</button>` : ''}
-  </div>
-  <div id="result-panels">`;
-
-  // Partner A panel
-  html += `<div class="tab-panel active" id="result-panel-A">` + renderResultPanel('A') + `</div>`;
-  html += `<div class="tab-panel" id="result-panel-B">` + renderResultPanel('B') + `</div>`;
-
-  if (state.quizDoneA && state.quizDoneB) {
-    html += `<div class="tab-panel" id="result-panel-both">` + renderSideBySide() + `</div>`;
-  }
-
-  html += `</div>`;
-
-  // Profile reflection
-  html += `
-    <div class="ornament-divider">✦ ✦ ✦</div>
-    <h2 style="font-size:1.5rem; color:var(--brown); margin-bottom:0.5rem;">My Love Language Profile</h2>
-    <p class="text-muted mb-3">Complete this individually after reviewing your quiz results.</p>
-    <div class="profile-grid">
-      ${renderProfileCard('A')}
-      ${renderProfileCard('B')}
-    </div>
-    <div class="flex-row mt-3" style="justify-content:flex-end;">
-      <button class="btn btn-primary" onclick="showPage('understand')">Understand Each Other &rarr;</button>
-    </div>`;
-
-  return html;
-}
-
-function renderResultPanel(p) {
-  const done   = p === 'A' ? state.quizDoneA   : state.quizDoneB;
-  const scores = p === 'A' ? state.scoresA     : state.scoresB;
-  const pName  = p === 'A' ? nameA()           : nameB();
-
-  if (!done) return `<div class="card card-warm text-center"><p class="text-muted">${escHtml(pName)} hasn't completed the quiz yet.</p><button class="btn btn-primary btn-sm mt-2" onclick="showPage('quiz')">Take the Quiz</button></div>`;
-
-  const ranked = getRankedScores(scores);
-  const primary   = ranked[0];
-  const secondary = ranked[1];
-  const desc = LL_DESCRIPTIONS[primary.key];
+  const ranked  = getRanked(quiz.scores);
+  const primary = ranked[0].key;
+  const guide   = TRANSLATION_GUIDE[primary];
+  const ll      = LL[primary];
 
   return `
-    <div class="partner-badge">🌸 ${escHtml(pName)}</div>
-    <div class="results-grid">
-      ${ranked.map((r, i) => `
-      <div class="result-score-card">
-        <div class="rs-icon">${r.icon}</div>
-        <div class="rs-label">${i===0?'Primary':'Secondary'} Language</div>
-        <div class="rs-name">${r.label}</div>
-        <div class="rs-score">${r.score}</div>
-        <span class="rs-badge ${i===0?'result-primary-badge':'result-secondary-badge'}">${i===0?'Primary':'Secondary'}</span>
-      </div>`).join('')}
-    </div>
-    <div class="score-bars mb-3" style="background:var(--white);border-radius:var(--radius);padding:1.5rem;box-shadow:0 2px 14px var(--shadow);">
-      <h3 style="font-size:1rem;color:var(--brown);margin-bottom:1rem;">Full Score Breakdown</h3>
-      ${ranked.map(r => `
-      <div class="score-bar-row">
-        <span class="score-bar-label">${r.icon} ${r.label}</span>
-        <div class="score-bar-track"><div class="score-bar-fill" style="width:${(r.score/8*100).toFixed(0)}%;background:${r.color};"></div></div>
-        <span class="score-bar-num">${r.score}</span>
-      </div>`).join('')}
-    </div>
-    <div class="result-description">
-      <h3>${primary.icon} ${primary.label}: What This Means for ${escHtml(pName)}</h3>
-      <p>${escHtml(desc.full)}</p>
-      <p><strong style="color:var(--brown);">Needs:</strong> ${escHtml(desc.needs)}</p>
-      <p><strong style="color:var(--rose);">What can hurt most:</strong> ${escHtml(desc.hurt)}</p>
-      <div class="result-quote">${escHtml(desc.quote)}</div>
-    </div>
-    ${secondary ? `
-    <div class="result-description" style="border-top-color:${LL_INFO[secondary.key].color};">
-      <h3>${secondary.icon} Secondary: ${secondary.label}</h3>
-      <p>${escHtml(LL_DESCRIPTIONS[secondary.key].full)}</p>
-    </div>` : ''}`;
-}
-
-function renderSideBySide() {
-  const rankedA = getRankedScores(state.scoresA);
-  const rankedB = getRankedScores(state.scoresB);
-
-  return `
-    <div class="card" style="margin-bottom:1.2rem;">
-      <h3 style="margin-bottom:1rem;">Score Comparison</h3>
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--rose);"></div>${escHtml(nameA())}</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--sage);"></div>${escHtml(nameB())}</div>
+  <div class="htl-card ${cls}">
+    <p class="text-muted mb-1" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">For ${esc(reader)} to read</p>
+    <h3 class="htl-title">${ll.icon} How to Love ${esc(pName)}</h3>
+    <p style="font-size:0.87rem;color:var(--plum-mid);margin-bottom:0.8rem;">Their primary language is <strong>${ll.label}</strong>.</p>
+    <div class="dos-donts">
+      <div>
+        <div class="list-head">They feel loved when you</div>
+        <ul class="dos-list">${guide.dos.slice(0,4).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
       </div>
-      <canvas id="compChart" height="220"></canvas>
+      <div>
+        <div class="list-head">They may feel overlooked when you</div>
+        <ul class="donts-list">${guide.donts.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+      </div>
     </div>
-    <div class="results-grid">
-      <div class="card-sm" style="background:var(--white);border-radius:var(--radius);padding:1.5rem;box-shadow:0 2px 14px var(--shadow);">
-        <div class="partner-badge">🌸 ${escHtml(nameA())}</div>
-        <p><strong>Primary:</strong> ${rankedA[0].icon} ${rankedA[0].label}</p>
-        <p><strong>Secondary:</strong> ${rankedA[1].icon} ${rankedA[1].label}</p>
-      </div>
-      <div class="card-sm" style="background:var(--white);border-radius:var(--radius);padding:1.5rem;box-shadow:0 2px 14px var(--shadow);">
-        <div class="partner-badge">🌿 ${escHtml(nameB())}</div>
-        <p><strong>Primary:</strong> ${rankedB[0].icon} ${rankedB[0].label}</p>
-        <p><strong>Secondary:</strong> ${rankedB[1].icon} ${rankedB[1].label}</p>
-      </div>
-    </div>`;
+  </div>`;
 }
 
 function renderProfileCard(p) {
-  const pName  = p === 'A' ? nameA() : nameB();
-  const profile = p === 'A' ? state.profileA : state.profileB;
-  const sid = 'saved-profile-' + p;
+  const profile = p === 'A' ? S.profileA : S.profileB;
+  const pName   = p === 'A' ? nA() : nB();
+  const badge   = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid     = 'si-profile-' + p;
   return `
-    <div class="card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)}</div>
-      <div class="field-group">
-        <label class="field-label">My primary love language is</label>
-        <input class="styled-input" id="profile-${p}-primary" value="${escHtml(profile.primary)}" placeholder="e.g. Quality Time" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">I feel most loved after...</label>
-        <textarea id="profile-${p}-feels" rows="2" placeholder="Describe a specific moment or gesture...">${escHtml(profile.feels)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">My secondary language is</label>
-        <input class="styled-input" id="profile-${p}-secondary" value="${escHtml(profile.secondary)}" placeholder="e.g. Words of Affirmation" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">I notice it when...</label>
-        <textarea id="profile-${p}-secNotice" rows="2" placeholder="...">${escHtml(profile.secNotice)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Something my partner does that perfectly speaks my language is...</label>
-        <textarea id="profile-${p}-partnerDoes" rows="2" placeholder="...">${escHtml(profile.partnerDoes)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Something I wish my partner understood about how I need to feel loved is...</label>
-        <textarea id="profile-${p}-wishUnderstood" rows="2" placeholder="...">${escHtml(profile.wishUnderstood)}</textarea>
-      </div>
-      <span class="saved-indicator" id="${sid}">✓ Saved</span>
-    </div>`;
+  <div class="card">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <div class="field-group">
+      <label class="field-label">My primary love language is</label>
+      <input id="prof-${p}-primary" class="text-input" value="${esc(profile.primary)}" placeholder="e.g. Quality Time" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">I feel most loved after...</label>
+      <textarea id="prof-${p}-feels" rows="2" placeholder="Describe a moment...">${esc(profile.feels)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">My secondary language is</label>
+      <input id="prof-${p}-secondary" class="text-input" value="${esc(profile.secondary)}" placeholder="e.g. Words of Affirmation" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">I notice it when...</label>
+      <textarea id="prof-${p}-secNotice" rows="2" placeholder="...">${esc(profile.secNotice)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Something my partner does that perfectly speaks my language is...</label>
+      <textarea id="prof-${p}-partnerDoes" rows="2" placeholder="...">${esc(profile.partnerDoes)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Something I wish my partner understood about how I need to feel loved is...</label>
+      <textarea id="prof-${p}-wishUnderstood" rows="2" placeholder="...">${esc(profile.wishUnderstood)}</textarea>
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
 }
 
-function switchResultTab(t) {
-  document.querySelectorAll('[id^="result-tab-"]').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('[id^="result-panel-"]').forEach(p => p.classList.remove('active'));
-  const tb = document.getElementById('result-tab-' + t);
-  const pn = document.getElementById('result-panel-' + t);
-  if (tb) tb.classList.add('active');
-  if (pn) {
-    pn.classList.add('active');
-    if (t === 'both') setTimeout(drawCompChart, 50);
-  }
+function bindProfileFields() {
+  ['A','B'].forEach(p => {
+    const profile = p === 'A' ? S.profileA : S.profileB;
+    const sid = 'si-profile-' + p;
+    ['primary','secondary','feels','secNotice','partnerDoes','wishUnderstood'].forEach(k => {
+      const el = document.getElementById(`prof-${p}-${k}`);
+      if (!el) return;
+      el.value = profile[k] || '';
+      const save = () => { profile[k] = el.value; persist(); showSaved(sid); };
+      el.addEventListener('input', save);
+    });
+  });
 }
 
-function drawCompChart() {
-  const canvas = document.getElementById('compChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const labels = Object.values(LL_INFO).map(l => l.label);
-  const dataA  = Object.keys(LL_INFO).map(k => (state.scoresA[k] || 0));
-  const dataB  = Object.keys(LL_INFO).map(k => (state.scoresB[k] || 0));
-
+function drawChart() {
+  const canvas = document.getElementById('results-chart');
+  if (!canvas || !S.quizA.done || !S.quizB.done) return;
   if (canvas._chart) canvas._chart.destroy();
-  canvas._chart = new Chart(ctx, {
+  const labels = Object.values(LL).map(l => l.label);
+  const dA = Object.keys(LL).map(k => S.quizA.scores[k] || 0);
+  const dB = Object.keys(LL).map(k => S.quizB.scores[k] || 0);
+  canvas._chart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        { label: nameA(), data: dataA, backgroundColor: 'rgba(201,123,99,0.75)', borderColor: '#c97b63', borderWidth: 2, borderRadius: 6 },
-        { label: nameB(), data: dataB, backgroundColor: 'rgba(138,172,142,0.75)', borderColor: '#8aac8e', borderWidth: 2, borderRadius: 6 }
+        { label: nA(), data: dA, backgroundColor: 'rgba(160,96,122,0.7)', borderColor: '#A0607A', borderWidth: 2, borderRadius: 6 },
+        { label: nB(), data: dB, backgroundColor: 'rgba(122,158,132,0.7)', borderColor: '#7A9E84', borderWidth: 2, borderRadius: 6 }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { labels: { font: { family: 'DM Sans', size: 12 }, color: '#6B3560' } } },
       scales: {
-        y: { beginAtZero: true, max: 8, ticks: { stepSize: 1 }, grid: { color: '#f3d9c4' } },
+        y: { beginAtZero: true, max: 8, ticks: { stepSize: 1 }, grid: { color: '#F3E6DA' } },
         x: { grid: { display: false }, ticks: { font: { size: 11 } } }
       }
     }
   });
 }
 
-function bindProfileFields() {
-  ['A','B'].forEach(p => {
-    const profile = p === 'A' ? state.profileA : state.profileB;
-    const sid = 'saved-profile-' + p;
-    ['primary','secondary','feels','secNotice','partnerDoes','wishUnderstood'].forEach(key => {
-      const el = document.getElementById(`profile-${p}-${key}`);
-      if (!el) return;
-      el.value = profile[key] || '';
-      el.addEventListener('input', () => { profile[key] = el.value; persist(); showSaved(sid); });
-    });
-  });
+function emailResults() {
+  const rA = S.quizA.done ? getRanked(S.quizA.scores)[0] : null;
+  const rB = S.quizB.done ? getRanked(S.quizB.scores)[0] : null;
+  const subject = `Our Love Languages - ${nA()} & ${nB()}`;
+  const body = `Our Love Language Results\n\n${nA()}'s primary love language: ${rA ? rA.label : 'Not completed'}\n${nB()}'s primary love language: ${rB ? rB.label : 'Not completed'}\n\nDiscovered using The Love Languages Workbook by The Clarity Desk.\n\nTo explore your full results, visit the app and continue your journey together.`;
+  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-// ─── RENDER UNDERSTAND ───────────────────────────────────────
+function copyShareCard() {
+  const rA = S.quizA.done ? getRanked(S.quizA.scores)[0] : null;
+  const rB = S.quizB.done ? getRanked(S.quizB.scores)[0] : null;
+  const text = `${nA()} & ${nB()}\n${rA ? `${nA()} speaks ${rA.label}` : ''}\n${rB ? `${nB()} speaks ${rB.label}` : ''}\nDiscovered with The Love Languages Workbook by The Clarity Desk.`;
+  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => alert('Copy failed -- please copy the text manually.'));
+}
+
+// ── UNDERSTAND EACH OTHER ────────────────────────────────────
 function renderUnderstand() {
-  const cp = state.comparisonPrompts;
+  const cp = S.compMap;
   return `
-  <div class="page ${state.currentPage==='understand'?'active':''}" id="page-understand">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Section Two</span>
-        <h1>Understand Your <em>Partner</em></h1>
-        <p>Complete this section together, after both of you have finished your individual quizzes.</p>
+<div class="page${S.currentPage==='understand'?' active':''}" id="page-understand">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Section Two</span>
+      <h1 class="sec-title">Understand Each <em>Other</em></h1>
+      <p class="sec-desc">Complete this section together, after both quizzes are done.</p>
+    </div>
+
+    ${(S.quizA.done && S.quizB.done) ? `
+    <div class="chart-wrap mb-3">
+      <h2 class="mb-2">Comparison Map</h2>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--mauve)"></div>${esc(nA())}</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--sage)"></div>${esc(nB())}</div>
       </div>
+      <canvas id="compare-chart" height="240"></canvas>
+    </div>` : `
+    <div class="card card-warm text-center mb-3">
+      <p class="text-muted">Complete both quizzes to unlock the comparison map.</p>
+      <button class="btn btn-primary btn-sm mt-2" onclick="navTo('quiz')">Go to Quiz</button>
+    </div>`}
 
-      ${(state.quizDoneA && state.quizDoneB) ? renderComparisonMap() : `
-        <div class="card card-warm text-center mb-3">
-          <p class="text-muted">Complete both quizzes first to unlock the comparison map.</p>
-          <button class="btn btn-primary btn-sm mt-2" onclick="showPage('quiz')">Go to Quiz</button>
-        </div>`}
+    <div class="card mb-3">
+      <h2 class="mb-3">What Does Your Map Tell You?</h2>
+      <div class="field-group">
+        <label class="field-label">Our love languages overlap on...</label>
+        <textarea id="cm-overlap" rows="2" placeholder="...">${esc(cp.overlap)}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Our biggest difference is that ${esc(nA())} needs ___ but ${esc(nB())} most naturally gives...</label>
+        <textarea id="cm-difference" rows="2" placeholder="...">${esc(cp.difference)}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">This explains why we've sometimes misunderstood each other when...</label>
+        <textarea id="cm-misunderstood" rows="2" placeholder="...">${esc(cp.misunderstood)}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Our biggest opportunity to grow closer is...</label>
+        <textarea id="cm-opportunity" rows="2" placeholder="...">${esc(cp.opportunity)}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Something this map confirms we already do well is...</label>
+        <textarea id="cm-alreadyWell" rows="2" placeholder="...">${esc(cp.alreadyWell)}</textarea>
+      </div>
+      <span class="saved-ind" id="si-compmap">✓ Saved</span>
+    </div>
 
-      <div class="card mt-3">
-        <h2 style="margin-bottom:1rem;">What Does Your Map Tell You?</h2>
-        <p class="text-muted mb-3">Complete these prompts together:</p>
-
-        <div class="field-group">
-          <label class="field-label">Our love languages overlap on...</label>
-          <textarea id="cp-overlap" rows="2" placeholder="e.g. We both value quality time...">${escHtml(cp.overlap)}</textarea>
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.5rem;color:var(--plum);margin-bottom:0.5rem;">Full Translation Guide</h2>
+    <p class="text-muted mb-3">The "translation gap" is what happens when you love your partner in your language instead of theirs.</p>
+    <div class="mb-3">
+      ${Object.entries(LL).map(([k,ll])=>`
+      <div class="trans-card ${ll.cls}" id="trans-${k}">
+        <div class="trans-header" onclick="toggleTrans('${k}')">
+          <span style="font-size:1.3rem;">${ll.icon}</span>
+          <h3>${ll.label}</h3>
+          <span class="trans-chevron">▼</span>
         </div>
-        <div class="field-group">
-          <label class="field-label">Our biggest difference is that ${escHtml(nameA())} needs ___ but ${escHtml(nameB())} most naturally gives...</label>
-          <textarea id="cp-difference" rows="2" placeholder="...">${escHtml(cp.difference)}</textarea>
+        <div class="trans-body">
+          <p style="font-size:0.87rem;color:var(--plum-mid);margin-bottom:0.8rem;">If your partner's language is <strong>${ll.label}</strong>, they feel loved when you...</p>
+          <div class="dos-donts">
+            <div>
+              <div class="list-head">They feel loved when you</div>
+              <ul class="dos-list">${TRANSLATION_GUIDE[k].dos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+            </div>
+            <div>
+              <div class="list-head">They may feel overlooked when you</div>
+              <ul class="donts-list">${TRANSLATION_GUIDE[k].donts.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+            </div>
+          </div>
         </div>
-        <div class="field-group">
-          <label class="field-label">This explains why we've sometimes misunderstood each other when...</label>
-          <textarea id="cp-misunderstood" rows="2" placeholder="...">${escHtml(cp.misunderstood)}</textarea>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Looking at this map, our biggest opportunity to grow closer is...</label>
-          <textarea id="cp-opportunity" rows="2" placeholder="...">${escHtml(cp.opportunity)}</textarea>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Something this map confirms that we already do well is...</label>
-          <textarea id="cp-alreadyWell" rows="2" placeholder="...">${escHtml(cp.alreadyWell)}</textarea>
-        </div>
-        <span class="saved-indicator" id="saved-cp">✓ Saved</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="card mb-3">
+      <div class="field-group">
+        <label class="field-label">The most important thing I learned about how to love my partner better is...</label>
+        <textarea id="translation-note" rows="3" placeholder="...">${esc(S.translationNote)}</textarea>
       </div>
+      <span class="saved-ind" id="si-tnote">✓ Saved</span>
+    </div>
 
-      <div class="ornament-divider">✦ ✦ ✦</div>
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.5rem;color:var(--plum);margin-bottom:0.5rem;">Speak My Language</h2>
+    <p class="text-muted mb-3">Fill out your request card independently, then share them with each other.</p>
+    <div class="request-grid">
+      ${renderRequestCard('A')}
+      ${renderRequestCard('B')}
+    </div>
 
-      <h2 style="font-size:1.5rem; color:var(--brown); margin-bottom:0.5rem;">The Love Language Translation Guide</h2>
-      <p class="text-muted mb-3">The "translation gap" is what happens when you love your partner in your language instead of theirs. Use this as your decoder.</p>
+    <div id="view-cards-area">
+      ${(S.requestA.r1 || S.requestA.mostMeans) && (S.requestB.r1 || S.requestB.mostMeans) ? renderViewCards() : `
+      <div class="text-center mt-3">
+        <p class="text-muted mb-2">Fill in both cards above, then view them side by side.</p>
+        <button class="btn btn-primary" onclick="checkAndShowCards()">View Each Other's Cards ✦</button>
+      </div>`}
+    </div>
 
-      <div class="mb-3">
-        ${Object.entries(LL_INFO).map(([k, ll]) => renderTransCard(k, ll)).join('')}
-      </div>
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="navTo('daily')">Apply It Daily &rarr;</button>
+    </div>
+  </div>
+</div>`;
+}
 
-      <div class="card mb-3">
-        <h3 style="margin-bottom:0.8rem;">The most important thing I learned about how to love my partner better is...</h3>
-        <textarea id="translation-note" rows="3" placeholder="Your reflection here...">${escHtml(state.translationNote)}</textarea>
-        <span class="saved-indicator" id="saved-tnote">✓ Saved</span>
-      </div>
+function renderRequestCard(p) {
+  const pName = p === 'A' ? nA() : nB();
+  const req   = p === 'A' ? S.requestA : S.requestB;
+  const quiz  = p === 'A' ? S.quizA : S.quizB;
+  const autoLL = quiz.done ? getRanked(quiz.scores)[0].label : '';
+  const badge = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid   = 'si-req-' + p;
+  return `
+  <div class="req-card">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <h3 style="font-size:1.1rem;color:var(--plum);margin-bottom:1rem;">A Request Card from ${esc(pName)}</h3>
+    <div class="field-group">
+      <label class="field-label">My love language is</label>
+      <input id="req-${p}-ll" class="text-input" value="${esc(req.ll || autoLL)}" placeholder="Your primary language" />
+    </div>
+    <p style="font-size:0.85rem;color:var(--plum-mid);margin-bottom:0.7rem;">This week, you could speak my language by:</p>
+    ${[1,2,3].map(n=>`
+    <div class="req-item">
+      <div class="req-num">${n}</div>
+      <input id="req-${p}-r${n}" class="text-input" value="${esc(req['r'+n])}" placeholder="One specific thing..." />
+    </div>`).join('')}
+    <div class="field-group mt-2">
+      <label class="field-label">The one thing that would mean the most to me right now is...</label>
+      <textarea id="req-${p}-mostMeans" rows="2" placeholder="...">${esc(req.mostMeans)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Signed with love</label>
+      <input id="req-${p}-sign" class="text-input" value="${esc(req.sign || pName)}" placeholder="${esc(pName)}" />
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
+}
 
-      <div class="ornament-divider">✦ ✦ ✦</div>
-
-      <h2 style="font-size:1.5rem; color:var(--brown); margin-bottom:0.5rem;">Speak My Language</h2>
-      <p class="text-muted mb-3">Fill out your request card independently, then share them with each other.</p>
-      <div class="request-grid">
-        ${renderRequestCard('A')}
-        ${renderRequestCard('B')}
-      </div>
-
-      <div class="flex-row mt-3" style="justify-content:flex-end;">
-        <button class="btn btn-primary" onclick="showPage('daily')">Apply It Daily &rarr;</button>
-      </div>
+function renderViewCards() {
+  return `
+  <div class="view-cards-panel">
+    <h2>Your Request Cards</h2>
+    <div class="view-cards-grid">
+      ${['A','B'].map(p => {
+        const req   = p === 'A' ? S.requestA : S.requestB;
+        const pName = p === 'A' ? nA() : nB();
+        const cls   = p === 'A' ? '' : 'sage-top';
+        return `
+        <div class="view-card ${cls}">
+          <div class="p-badge ${p==='A'?'p-badge-a':'p-badge-b'}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+          <div class="view-card-ll">${esc(req.ll || 'Love language not specified')}</div>
+          <p style="font-size:0.83rem;color:var(--plum-mid);margin-bottom:0.5rem;">This week, you could speak my language by:</p>
+          <ol>
+            ${[1,2,3].filter(n=>req['r'+n]).map(n=>`<li>${esc(req['r'+n])}</li>`).join('')}
+          </ol>
+          ${req.mostMeans ? `<div class="view-card-highlight">"${esc(req.mostMeans)}"</div>` : ''}
+          ${req.sign ? `<div class="view-card-sig">Signed with love, ${esc(req.sign)}</div>` : ''}
+        </div>`;
+      }).join('')}
     </div>
   </div>`;
 }
 
-function renderComparisonMap() {
-  const rankedA = getRankedScores(state.scoresA);
-  const rankedB = getRankedScores(state.scoresB);
-  const llKeys  = Object.keys(LL_INFO);
-
-  return `
-    <div class="chart-container">
-      <h2 style="margin-bottom:0.8rem;">The Love Language Comparison Map</h2>
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--rose);"></div>${escHtml(nameA())}</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--sage);"></div>${escHtml(nameB())}</div>
-      </div>
-      <canvas id="compareChart" height="240"></canvas>
-    </div>
-    <div class="results-grid mb-3">
-      <div class="card-sm" style="background:var(--white);border-radius:var(--radius);padding:1.3rem;box-shadow:0 2px 12px var(--shadow);">
-        <div class="partner-badge">🌸 ${escHtml(nameA())}</div>
-        <p><strong>Primary:</strong> ${rankedA[0].icon} ${rankedA[0].label}</p>
-        <p><strong>Secondary:</strong> ${rankedA[1].icon} ${rankedA[1].label}</p>
-      </div>
-      <div class="card-sm" style="background:var(--white);border-radius:var(--radius);padding:1.3rem;box-shadow:0 2px 12px var(--shadow);">
-        <div class="partner-badge">🌿 ${escHtml(nameB())}</div>
-        <p><strong>Primary:</strong> ${rankedB[0].icon} ${rankedB[0].label}</p>
-        <p><strong>Secondary:</strong> ${rankedB[1].icon} ${rankedB[1].label}</p>
-      </div>
-    </div>`;
-}
-
-function renderTransCard(k, ll) {
-  const guide = TRANSLATION_GUIDE[k];
-  return `
-    <div class="trans-card ${ll.cls}" id="trans-${k}">
-      <div class="trans-card-header" onclick="toggleTrans('${k}')">
-        <span style="font-size:1.3rem;">${ll.icon}</span>
-        <h3>${ll.label}</h3>
-        <span class="trans-chevron">▼</span>
-      </div>
-      <div class="trans-card-body">
-        <p style="font-size:0.87rem;color:var(--textMid);margin-bottom:0.8rem;">If your partner's language is ${ll.label}, they feel loved when you...</p>
-        <div class="dos-donts">
-          <div>
-            <div class="list-header">They feel loved when you</div>
-            <ul class="dos-list">${guide.dos.map(d => `<li>${escHtml(d)}</li>`).join('')}</ul>
-          </div>
-          <div>
-            <div class="list-header">They may feel overlooked when you</div>
-            <ul class="donts-list">${guide.donts.map(d => `<li>${escHtml(d)}</li>`).join('')}</ul>
-          </div>
-        </div>
-      </div>
-    </div>`;
+function checkAndShowCards() {
+  document.getElementById('view-cards-area').innerHTML = renderViewCards();
 }
 
 function toggleTrans(k) {
   document.getElementById('trans-' + k).classList.toggle('open');
 }
 
-function renderRequestCard(p) {
-  const pName = p === 'A' ? nameA() : nameB();
-  const req   = p === 'A' ? state.requestA : state.requestB;
-  const sid   = 'saved-req-' + p;
-  return `
-    <div class="request-card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)}</div>
-      <h3 style="margin-bottom:1rem;">A Request Card from ${escHtml(pName)}</h3>
-      <div class="field-group">
-        <label class="field-label">My love language is</label>
-        <input class="styled-input" id="req-${p}-ll" value="${escHtml(req.ll)}" placeholder="e.g. Quality Time" />
-      </div>
-      <p style="font-size:0.85rem; color:var(--textMid); margin-bottom:0.7rem;">This week, you could speak my language by:</p>
-      ${[1,2,3].map(n => `
-      <div class="request-item">
-        <div class="request-num">${n}</div>
-        <input id="req-${p}-r${n}" value="${escHtml(req['r'+n])}" placeholder="One specific thing..." />
-      </div>`).join('')}
-      <div class="field-group mt-2">
-        <label class="field-label">The one thing that would mean the most to me right now is...</label>
-        <textarea id="req-${p}-mostMeans" rows="2" placeholder="...">${escHtml(req.mostMeans)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Signed with love</label>
-        <input class="styled-input" id="req-${p}-sign" value="${escHtml(req.sign)}" placeholder="${escHtml(pName)}" />
-      </div>
-      <span class="saved-indicator" id="${sid}">✓ Saved</span>
-    </div>`;
-}
-
 function bindUnderstandFields() {
-  const cp = state.comparisonPrompts;
-  ['overlap','difference','misunderstood','opportunity','alreadyWell'].forEach(k => {
-    bindTextarea(document.getElementById('cp-' + k), cp, k, 'saved-cp');
-  });
-  bindTextarea(document.getElementById('translation-note'), state, 'translationNote', 'saved-tnote');
+  const cp = S.compMap;
+  ['overlap','difference','misunderstood','opportunity','alreadyWell'].forEach(k => bind('cm-'+k, cp, k, 'si-compmap'));
+  bind('translation-note', S, 'translationNote', 'si-tnote');
   ['A','B'].forEach(p => {
-    const req = p === 'A' ? state.requestA : state.requestB;
-    const sid = 'saved-req-' + p;
+    const req = p === 'A' ? S.requestA : S.requestB;
+    const quiz = p === 'A' ? S.quizA : S.quizB;
+    const autoLL = quiz.done ? getRanked(quiz.scores)[0].label : '';
+    const sid = 'si-req-' + p;
     ['ll','r1','r2','r3','mostMeans','sign'].forEach(k => {
-      const el = document.getElementById('req-' + p + '-' + k);
+      const el = document.getElementById(`req-${p}-${k}`);
       if (!el) return;
-      el.value = req[k] || '';
-      el.addEventListener('input', () => { req[k] = el.value; persist(); showSaved(sid); });
+      el.value = req[k] || (k==='ll' ? autoLL : '') || '';
+      const save = () => { req[k] = el.value; persist(); showSaved(sid); };
+      el.addEventListener('input', save);
     });
   });
-  if (state.quizDoneA && state.quizDoneB) setTimeout(drawUnderstandChart, 80);
+  if (S.quizA.done && S.quizB.done) setTimeout(drawCompareChart, 80);
 }
 
-function drawUnderstandChart() {
-  const canvas = document.getElementById('compareChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const labels = Object.values(LL_INFO).map(l => l.label);
-  const dataA  = Object.keys(LL_INFO).map(k => (state.scoresA[k] || 0));
-  const dataB  = Object.keys(LL_INFO).map(k => (state.scoresB[k] || 0));
-
+function drawCompareChart() {
+  const canvas = document.getElementById('compare-chart');
+  if (!canvas || !S.quizA.done || !S.quizB.done) return;
   if (canvas._chart) canvas._chart.destroy();
-  canvas._chart = new Chart(ctx, {
+  const labels = Object.values(LL).map(l => l.label);
+  const dA = Object.keys(LL).map(k => S.quizA.scores[k] || 0);
+  const dB = Object.keys(LL).map(k => S.quizB.scores[k] || 0);
+  canvas._chart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        { label: nameA(), data: dataA, backgroundColor: 'rgba(201,123,99,0.75)', borderColor: '#c97b63', borderWidth: 2, borderRadius: 6 },
-        { label: nameB(), data: dataB, backgroundColor: 'rgba(138,172,142,0.75)', borderColor: '#8aac8e', borderWidth: 2, borderRadius: 6 }
+        { label: nA(), data: dA, backgroundColor: 'rgba(160,96,122,0.7)', borderColor: '#A0607A', borderWidth: 2, borderRadius: 6 },
+        { label: nB(), data: dB, backgroundColor: 'rgba(122,158,132,0.7)', borderColor: '#7A9E84', borderWidth: 2, borderRadius: 6 }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { font: { family: 'Inter', size: 12 }, color: '#7a5c50' } } },
+      plugins: { legend: { labels: { font: { family: 'DM Sans', size: 12 }, color: '#6B3560' } } },
       scales: {
-        y: { beginAtZero: true, max: 8, ticks: { stepSize: 1 }, grid: { color: '#f3d9c4' } },
+        y: { beginAtZero: true, max: 8, ticks: { stepSize: 1 }, grid: { color: '#F3E6DA' } },
         x: { grid: { display: false }, ticks: { font: { size: 11 } } }
       }
     }
   });
 }
 
-// ─── RENDER DAILY ────────────────────────────────────────────
+// ── APPLY DAILY ───────────────────────────────────────────────
 let actionFilter = 'all';
 
 function renderDaily() {
   return `
-  <div class="page ${state.currentPage==='daily'?'active':''}" id="page-daily">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Section Three</span>
-        <h1>Apply It <em>Daily</em></h1>
-        <p>From insight to action. Choose one thing today.</p>
-      </div>
+<div class="page${S.currentPage==='daily'?' active':''}" id="page-daily">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Section Three</span>
+      <h1 class="sec-title">Apply It <em>Daily</em></h1>
+      <p class="sec-desc">From insight to action. Choose one thing today.</p>
+    </div>
 
-      <h2 style="font-size:1.4rem; color:var(--brown); margin-bottom:0.5rem;">Love Language Action Menu</h2>
-      <p class="text-muted mb-3">Fifty small acts. All five languages. Choose one today.</p>
+    <h2 style="font-size:1.4rem;color:var(--plum);margin-bottom:0.5rem;">Love Language Action Menu</h2>
+    <p class="text-muted mb-3">Fifty small acts. All five languages. Choose one today.</p>
+    <div class="filter-row" id="filter-row">
+      <button class="filter-btn f-all${actionFilter==='all'?' active':''}" onclick="setFilter('all')">All</button>
+      <button class="filter-btn f-words${actionFilter==='words'?' active':''}" onclick="setFilter('words')">💬 Words</button>
+      <button class="filter-btn f-time${actionFilter==='time'?' active':''}" onclick="setFilter('time')">⏱ Time</button>
+      <button class="filter-btn f-touch${actionFilter==='touch'?' active':''}" onclick="setFilter('touch')">🤝 Touch</button>
+      <button class="filter-btn f-service${actionFilter==='service'?' active':''}" onclick="setFilter('service')">🛠 Service</button>
+      <button class="filter-btn f-gifts${actionFilter==='gifts'?' active':''}" onclick="setFilter('gifts')">🎁 Gifts</button>
+    </div>
+    <div class="action-grid" id="action-grid">${renderActionItems()}</div>
 
-      <div class="action-filter-row" id="action-filters">
-        <button class="filter-btn ${actionFilter==='all'?'active-all':''}" onclick="setActionFilter('all')">All</button>
-        <button class="filter-btn ${actionFilter==='words'?'active-words':''}" onclick="setActionFilter('words')">💬 Words</button>
-        <button class="filter-btn ${actionFilter==='time'?'active-time':''}" onclick="setActionFilter('time')">⏱ Time</button>
-        <button class="filter-btn ${actionFilter==='touch'?'active-touch':''}" onclick="setActionFilter('touch')">🤝 Touch</button>
-        <button class="filter-btn ${actionFilter==='service'?'active-service':''}" onclick="setActionFilter('service')">🛠 Service</button>
-        <button class="filter-btn ${actionFilter==='gifts'?'active-gifts':''}" onclick="setActionFilter('gifts')">🎁 Gifts</button>
-      </div>
-      <div class="action-grid" id="action-grid">
-        ${renderActionItems()}
-      </div>
-
-      <div class="ornament-divider">✦ ✦ ✦</div>
-
-      <h2 style="font-size:1.4rem; color:var(--brown); margin-bottom:0.5rem;">The Love Language Date Night</h2>
-      <p class="text-muted mb-3" style="font-style:italic;">"The most meaningful dates aren't the most expensive. They're the ones that speak directly to your partner's heart."</p>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;" class="date-grid">
-        ${renderDateNightCard('A')}
-        ${renderDateNightCard('B')}
-      </div>
-
-      <div class="card mb-3">
-        <h3 style="margin-bottom:0.8rem;">Date Night Idea Generator</h3>
-        <p class="text-muted mb-2">Use these for inspiration or steal them exactly as written.</p>
-        <div style="overflow-x:auto;">
-          <table class="date-idea-table">
-            <thead><tr><th>Language</th><th>Idea One</th><th>Idea Two</th></tr></thead>
-            <tbody>
-              ${DATE_IDEAS.map(d => `<tr><td><strong>${d.ll}</strong></td><td>${escHtml(d.i1)}</td><td>${escHtml(d.i2)}</td></tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="ornament-divider">✦ ✦ ✦</div>
-
-      <h2 style="font-size:1.4rem; color:var(--brown); margin-bottom:0.5rem;">Love Language Barriers</h2>
-      <p class="text-muted mb-3">Knowing your partner's love language is only half the journey. This page is for the honest work.</p>
-      <div class="barriers-grid">
-        ${renderBarriersCard('A')}
-        ${renderBarriersCard('B')}
-      </div>
-
-      <div class="ornament-divider">✦ ✦ ✦</div>
-
-      <h2 style="font-size:1.4rem; color:var(--brown); margin-bottom:0.5rem;">Our Love Language Commitments</h2>
-      <p class="text-muted mb-3">Written to each other. Signed by both of you. Kept as a record.</p>
-      <div class="commitment-grid">
-        ${renderCommitmentCard('A')}
-        ${renderCommitmentCard('B')}
-      </div>
-      <div class="commitment-together">
-        <blockquote>"We will learn each other's language, not perfectly, but persistently. We will choose to love each other on purpose, even on the days it doesn't come easily. And when we miss the mark, we will try again."</blockquote>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameA())}'s signature</label>
-            <input class="styled-input" id="commit-signA" value="${escHtml(state.commitA.signA||'')}" placeholder="${escHtml(nameA())}" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameB())}'s signature</label>
-            <input class="styled-input" id="commit-signB" value="${escHtml(state.commitB.signB||'')}" placeholder="${escHtml(nameB())}" />
-          </div>
-        </div>
-        <span class="saved-indicator" id="saved-commit-sig">✓ Signed</span>
-      </div>
-
-      <div class="flex-row mt-3" style="justify-content:flex-end;">
-        <button class="btn btn-primary" onclick="showPage('challenge')">Start 30-Day Challenge &rarr;</button>
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.4rem;color:var(--plum);margin-bottom:0.5rem;">Date Night Planner</h2>
+    <p class="text-muted mb-3" style="font-style:italic;">"The most meaningful dates aren't the most expensive. They're the ones that speak directly to your partner's heart."</p>
+    <div class="two-col mb-3">
+      ${renderDateNightCard('A')}
+      ${renderDateNightCard('B')}
+    </div>
+    <div class="card mb-3">
+      <h3 class="mb-2">Date Night Idea Generator</h3>
+      <div style="overflow-x:auto;">
+        <table class="date-table">
+          <thead><tr><th>Language</th><th>Idea One</th><th>Idea Two</th></tr></thead>
+          <tbody>${DATE_IDEAS.map(d=>`<tr><td><strong>${d.ll}</strong></td><td>${esc(d.i1)}</td><td>${esc(d.i2)}</td></tr>`).join('')}</tbody>
+        </table>
       </div>
     </div>
-  </div>`;
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.4rem;color:var(--plum);margin-bottom:0.5rem;">Love Language Barriers</h2>
+    <p class="text-muted mb-3">Knowing your partner's love language is only half the journey.</p>
+    <div class="two-col mb-3">
+      ${renderBarriersCard('A')}
+      ${renderBarriersCard('B')}
+    </div>
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <h2 style="font-size:1.4rem;color:var(--plum);margin-bottom:0.5rem;">Our Love Language Commitments</h2>
+    <p class="text-muted mb-3">Written to each other. Signed by both of you. Kept as a record.</p>
+    <div class="two-col mb-3">
+      ${renderCommitCard('A')}
+      ${renderCommitCard('B')}
+    </div>
+    <div class="commitment-together">
+      <blockquote>"We will learn each other's language, not perfectly, but persistently. We will choose to love each other on purpose, even on the days it doesn't come easily. And when we miss the mark, we will try again."</blockquote>
+      <div class="two-col">
+        <div class="field-group">
+          <label class="field-label">${esc(nA())}'s signature</label>
+          <input id="commit-signA" class="text-input" value="${esc(S.commitA.sign)}" placeholder="${esc(nA())}" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">${esc(nB())}'s signature</label>
+          <input id="commit-signB" class="text-input" value="${esc(S.commitB.sign)}" placeholder="${esc(nB())}" />
+        </div>
+      </div>
+      <span class="saved-ind" id="si-commit-sig">✓ Signed</span>
+    </div>
+
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="navTo('challenge')">Start 30-Day Challenge &rarr;</button>
+    </div>
+  </div>
+</div>`;
 }
 
 function renderActionItems() {
-  const items = [];
-  for (const [k, actions] of Object.entries(ACTION_MENU)) {
+  let html = '';
+  for (const [k, actions] of Object.entries(ACTION_POOL)) {
     if (actionFilter !== 'all' && actionFilter !== k) continue;
     actions.forEach(a => {
-      items.push(`<div class="action-item ${k}">
-        <span class="action-item-tag" style="color:${LL_INFO[k].color};">${LL_INFO[k].icon} ${LL_INFO[k].label}</span>
-        <span class="action-item-text">${escHtml(a)}</span>
-      </div>`);
+      html += `<div class="action-item ${k}">
+        <span class="ai-tag" style="color:${LL[k].color}">${LL[k].icon} ${LL[k].label}</span>
+        <span class="ai-text">${esc(a)}</span>
+      </div>`;
     });
   }
-  return items.join('');
+  return html;
 }
 
-function setActionFilter(f) {
+function setFilter(f) {
   actionFilter = f;
   document.getElementById('action-grid').innerHTML = renderActionItems();
   document.querySelectorAll('.filter-btn').forEach(b => {
-    b.className = 'filter-btn';
-    const ff = b.getAttribute('onclick').match(/'(\w+)'/)[1];
-    if (ff === f) b.classList.add('active-' + f);
+    b.classList.remove('active');
+    const classes = b.className.split(' ');
+    const fClass = classes.find(c => c.startsWith('f-'));
+    if (fClass && fClass === 'f-' + f) b.classList.add('active');
   });
 }
 
 function renderDateNightCard(p) {
-  const pName = p === 'A' ? nameA() : nameB();
-  const dn    = p === 'A' ? state.dateNightA : state.dateNightB;
-  const sid   = 'saved-dn-' + p;
+  const pName  = p === 'A' ? nA() : nB();
+  const pOther = p === 'A' ? nB() : nA();
+  const dn     = p === 'A' ? S.dateNightA : S.dateNightB;
+  const quiz   = p === 'B' ? S.quizB : S.quizA; // target partner's quiz
+  // p=A plans for B, so targetQuiz is B's
+  const targetQuiz = p === 'A' ? S.quizB : S.quizA;
+  const autoLL = targetQuiz.done ? getRanked(targetQuiz.scores)[0].label : '';
+  const badge  = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid    = 'si-dn-' + p;
   return `
-    <div class="card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)} plans a date for ${p==='A'?escHtml(nameB()):escHtml(nameA())}</div>
-      <div class="field-group">
-        <label class="field-label">Partner's primary love language</label>
-        <input class="styled-input" id="dn-${p}-partnerLL" value="${escHtml(dn.partnerLL)}" placeholder="e.g. Quality Time" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">A date idea that speaks their language</label>
-        <textarea id="dn-${p}-idea" rows="2" placeholder="Describe your idea...">${escHtml(dn.idea)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">What I'll do to make them feel seen</label>
-        <textarea id="dn-${p}-feel_seen" rows="2" placeholder="...">${escHtml(dn.feel_seen)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">What I want them to feel by the end</label>
-        <input class="styled-input" id="dn-${p}-want_to_feel" value="${escHtml(dn.want_to_feel)}" placeholder="e.g. Cherished and seen" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Date I'm planning this for</label>
-        <input class="styled-input" id="dn-${p}-date" type="date" value="${escHtml(dn.date)}" />
-      </div>
-      <span class="saved-indicator" id="${sid}">✓ Saved</span>
-    </div>`;
+  <div class="card">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)} plans for ${esc(pOther)}</div>
+    <div class="field-group">
+      <label class="field-label">${esc(pOther)}'s primary love language</label>
+      <input id="dn-${p}-partnerLL" class="text-input" value="${esc(dn.partnerLL || autoLL)}" placeholder="e.g. Quality Time" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">A date idea that speaks their language</label>
+      <textarea id="dn-${p}-idea" rows="2" placeholder="Describe your idea...">${esc(dn.idea)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">What I'll do to make them feel seen</label>
+      <textarea id="dn-${p}-feelSeen" rows="2" placeholder="...">${esc(dn.feelSeen)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">What I want them to feel by the end</label>
+      <input id="dn-${p}-wantToFeel" class="text-input" value="${esc(dn.wantToFeel)}" placeholder="e.g. Cherished and seen" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Planning for</label>
+      <input id="dn-${p}-date" type="date" class="text-input" value="${esc(dn.date)}" />
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
 }
 
 function renderBarriersCard(p) {
-  const pName = p === 'A' ? nameA() : nameB();
-  const bar   = p === 'A' ? state.barriersA : state.barriersB;
-  const sid   = 'saved-bar-' + p;
+  const pName = p === 'A' ? nA() : nB();
+  const bar   = p === 'A' ? S.barriersA : S.barriersB;
+  const badge = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid   = 'si-bar-' + p;
   return `
-    <div class="card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)}</div>
-      <div class="field-group">
-        <label class="field-label">Speaking my partner's love language sometimes feels difficult because...</label>
-        <textarea id="bar-${p}-difficult" rows="2" placeholder="Be honest with yourself...">${escHtml(bar.difficult)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Growing up, love in my family was mostly shown through...</label>
-        <input class="styled-input" id="bar-${p}-family" value="${escHtml(bar.family)}" placeholder="e.g. acts of service, words..." />
-      </div>
-      <div class="field-group">
-        <label class="field-label">...which means I naturally default to showing love by...</label>
-        <textarea id="bar-${p}-naturally" rows="2" placeholder="...">${escHtml(bar.naturally)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">A belief I hold that makes it hard to show love my partner's way is...</label>
-        <textarea id="bar-${p}-belief" rows="2" placeholder="...">${escHtml(bar.belief)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">One small, specific thing I can do this week to stretch outside my comfort zone is...</label>
-        <textarea id="bar-${p}-stretch" rows="2" placeholder="...">${escHtml(bar.stretch)}</textarea>
-      </div>
-      <span class="saved-indicator" id="${sid}">✓ Saved</span>
-    </div>`;
+  <div class="card">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <div class="field-group">
+      <label class="field-label">Speaking my partner's love language sometimes feels difficult because...</label>
+      <textarea id="bar-${p}-difficult" rows="2" placeholder="Be honest with yourself...">${esc(bar.difficult)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Growing up, love in my family was mostly shown through...</label>
+      <input id="bar-${p}-family" class="text-input" value="${esc(bar.family)}" placeholder="e.g. acts of service, words..." />
+    </div>
+    <div class="field-group">
+      <label class="field-label">...which means I naturally default to showing love by...</label>
+      <textarea id="bar-${p}-naturally" rows="2" placeholder="...">${esc(bar.naturally)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">A belief that makes it hard to show love my partner's way is...</label>
+      <textarea id="bar-${p}-belief" rows="2" placeholder="...">${esc(bar.belief)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">One small thing I can do this week to stretch outside my comfort zone is...</label>
+      <textarea id="bar-${p}-stretch" rows="2" placeholder="...">${esc(bar.stretch)}</textarea>
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
 }
 
-function renderCommitmentCard(p) {
-  const pName  = p === 'A' ? nameA() : nameB();
-  const pOther = p === 'A' ? nameB() : nameA();
-  const com    = p === 'A' ? state.commitA : state.commitB;
-  const sid    = 'saved-com-' + p;
+function renderCommitCard(p) {
+  const pName  = p === 'A' ? nA() : nB();
+  const pOther = p === 'A' ? nB() : nA();
+  const com    = p === 'A' ? S.commitA : S.commitB;
+  const badge  = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid    = 'si-com-' + p;
   return `
-    <div class="commitment-card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)} writes to ${escHtml(pOther)}</div>
-      <div class="field-group">
-        <label class="field-label">I commit to speaking your love language by regularly doing...</label>
-        <textarea id="com-${p}-doRegularly" rows="3" placeholder="Be specific and sincere...">${escHtml(com.doRegularly)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">When I'm tired, stressed, or busy, I will still try to...</label>
-        <textarea id="com-${p}-whenTired" rows="2" placeholder="...">${escHtml(com.whenTired)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">If I'm falling short, please gently remind me by...</label>
-        <textarea id="com-${p}-remindMe" rows="2" placeholder="...">${escHtml(com.remindMe)}</textarea>
-      </div>
-      <span class="saved-indicator" id="${sid}">✓ Saved</span>
-    </div>`;
+  <div class="card card-accent">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)} writes to ${esc(pOther)}</div>
+    <div class="field-group">
+      <label class="field-label">I commit to speaking your love language by regularly doing...</label>
+      <textarea id="com-${p}-doRegularly" rows="3" placeholder="Be specific and sincere...">${esc(com.doRegularly)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">When I'm tired, stressed, or busy, I will still try to...</label>
+      <textarea id="com-${p}-whenTired" rows="2" placeholder="...">${esc(com.whenTired)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">If I'm falling short, please gently remind me by...</label>
+      <textarea id="com-${p}-remindMe" rows="2" placeholder="...">${esc(com.remindMe)}</textarea>
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
 }
 
 function bindDailyFields() {
   ['A','B'].forEach(p => {
-    const dn  = p === 'A' ? state.dateNightA : state.dateNightB;
-    const bar = p === 'A' ? state.barriersA  : state.barriersB;
-    const com = p === 'A' ? state.commitA    : state.commitB;
-
-    ['partnerLL','idea','feel_seen','want_to_feel','date'].forEach(k => {
-      const el = document.getElementById('dn-' + p + '-' + k);
-      if (!el) return;
-      el.value = dn[k] || '';
-      el.addEventListener('input', () => { dn[k] = el.value; persist(); showSaved('saved-dn-' + p); });
-    });
-
-    ['difficult','family','naturally','belief','stretch'].forEach(k => {
-      const el = document.getElementById('bar-' + p + '-' + k);
-      if (!el) return;
-      el.value = bar[k] || '';
-      el.addEventListener('input', () => { bar[k] = el.value; persist(); showSaved('saved-bar-' + p); });
-    });
-
-    ['doRegularly','whenTired','remindMe'].forEach(k => {
-      const el = document.getElementById('com-' + p + '-' + k);
-      if (!el) return;
-      el.value = com[k] || '';
-      el.addEventListener('input', () => { com[k] = el.value; persist(); showSaved('saved-com-' + p); });
-    });
+    const dn  = p === 'A' ? S.dateNightA : S.dateNightB;
+    const bar = p === 'A' ? S.barriersA  : S.barriersB;
+    const com = p === 'A' ? S.commitA    : S.commitB;
+    ['partnerLL','idea','feelSeen','wantToFeel','date'].forEach(k => bind(`dn-${p}-${k}`, dn, k, 'si-dn-'+p));
+    ['difficult','family','naturally','belief','stretch'].forEach(k => bind(`bar-${p}-${k}`, bar, k, 'si-bar-'+p));
+    ['doRegularly','whenTired','remindMe'].forEach(k => bind(`com-${p}-${k}`, com, k, 'si-com-'+p));
   });
-
-  const signA = document.getElementById('commit-signA');
-  const signB = document.getElementById('commit-signB');
-  if (signA) { signA.value = state.commitA.signA || ''; signA.addEventListener('input', () => { state.commitA.signA = signA.value; persist(); showSaved('saved-commit-sig'); }); }
-  if (signB) { signB.value = state.commitB.signB || ''; signB.addEventListener('input', () => { state.commitB.signB = signB.value; persist(); showSaved('saved-commit-sig'); }); }
+  const csA = document.getElementById('commit-signA');
+  const csB = document.getElementById('commit-signB');
+  if (csA) { csA.value = S.commitA.sign||''; csA.addEventListener('input', () => { S.commitA.sign=csA.value; persist(); showSaved('si-commit-sig'); }); }
+  if (csB) { csB.value = S.commitB.sign||''; csB.addEventListener('input', () => { S.commitB.sign=csB.value; persist(); showSaved('si-commit-sig'); }); }
 }
 
-// ─── RENDER CHALLENGE ────────────────────────────────────────
-function renderChallenge() {
-  const done  = Object.values(state.challengeChecked).filter(Boolean).length;
-  const pct   = Math.round(done / 30 * 100);
+// ── 30-DAY CHALLENGE ──────────────────────────────────────────
+let activeChallengeTab = 'A';
+
+function renderChallengePage() {
+  // Build plans based on partner scores
+  const planA = buildPersonalizedPlan(S.quizB.scores); // A does actions FOR B (based on B's scores)
+  const planB = buildPersonalizedPlan(S.quizA.scores); // B does actions FOR A (based on A's scores)
 
   return `
-  <div class="page ${state.currentPage==='challenge'?'active':''}" id="page-challenge">
-    <div class="section-page">
-      <div class="section-header">
-        <span class="section-tag">Section Four</span>
-        <h1>The 30-Day Connection <em>Challenge</em></h1>
-        <p>"The most powerful thing you can do after discovering your love languages isn't to memorize them. It's to practice them."</p>
-      </div>
-
-      <div class="challenge-progress">
-        <div>
-          <div class="challenge-progress-num">${done}</div>
-          <div class="challenge-progress-label">of 30 days complete</div>
-        </div>
-        <div style="flex:1;">
-          <div class="challenge-progress-bar">
-            <div class="challenge-progress-fill" style="width:${pct}%;"></div>
-          </div>
-          <div class="text-muted mt-1" style="font-size:0.8rem;">${pct}% complete</div>
-        </div>
-        ${done === 30 ? `<span style="font-size:1.5rem;">🎉</span>` : ''}
-      </div>
-
-      <div class="card mb-3">
-        <h3 style="margin-bottom:1rem;">Your Starting Intention</h3>
-        <p class="text-muted mb-3">Before Day 1, each partner writes:</p>
-        <p class="italic mb-3" style="color:var(--brown); font-family:'Playfair Display',serif;">"The one thing I most hope this challenge does for our relationship is..."</p>
-        <div class="warmup-grid">
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameA())}</label>
-            <textarea id="intention-A" rows="2" placeholder="Write freely...">${escHtml(state.intentionA)}</textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label">${escHtml(nameB())}</label>
-            <textarea id="intention-B" rows="2" placeholder="Write freely...">${escHtml(state.intentionB)}</textarea>
-          </div>
-        </div>
-        <div class="field-group mt-2">
-          <label class="field-label">Start date</label>
-          <input class="styled-input" id="challenge-start" type="date" value="${escHtml(state.challengeStartDate)}" style="max-width:200px;" />
-        </div>
-        <span class="saved-indicator" id="saved-intent">✓ Saved</span>
-      </div>
-
-      <div class="challenge-grid" id="challenge-list">
-        ${CHALLENGE_DAYS.map(d => renderChallengeDay(d)).join('')}
-      </div>
-
-      ${done >= 30 ? renderReflection() : ''}
-
+<div class="page${S.currentPage==='challenge'?' active':''}" id="page-challenge">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Section Four</span>
+      <h1 class="sec-title">The 30-Day Connection <em>Challenge</em></h1>
+      <p class="sec-desc">"The most powerful thing you can do after discovering your love languages isn't to memorize them. It's to practice them."</p>
     </div>
+
+    <div class="card card-warm mb-3">
+      <h3 class="mb-2">Starting Intentions</h3>
+      <p class="text-muted mb-3" style="font-style:italic;">"The one thing I most hope this challenge does for our relationship is..."</p>
+      <div class="two-col">
+        <div class="field-group">
+          <label class="field-label">${esc(nA())}</label>
+          <textarea id="intent-A" rows="2" placeholder="...">${esc(S.challengeA.intention)}</textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">${esc(nB())}</label>
+          <textarea id="intent-B" rows="2" placeholder="...">${esc(S.challengeB.intention)}</textarea>
+        </div>
+      </div>
+      <span class="saved-ind" id="si-intent">✓ Saved</span>
+    </div>
+
+    <div class="challenge-tabs">
+      <button class="ch-tab${activeChallengeTab==='A'?' active':''}" onclick="switchChallengeTab('A')">
+        ${esc(nA())}'s Plan
+      </button>
+      <button class="ch-tab${activeChallengeTab==='B'?' active':''}" onclick="switchChallengeTab('B')">
+        ${esc(nB())}'s Plan
+      </button>
+    </div>
+
+    <div class="ch-panel${activeChallengeTab==='A'?' active':''}" id="ch-panel-A">
+      ${renderChallengePanel('A', planA)}
+    </div>
+    <div class="ch-panel${activeChallengeTab==='B'?' active':''}" id="ch-panel-B">
+      ${renderChallengePanel('B', planB)}
+    </div>
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <div class="weekly-gen-card">
+      <h2 style="font-size:1.4rem;color:var(--plum);margin-bottom:0.5rem;">This Week's Love Language Focus</h2>
+      <p class="text-muted mb-3">Click to get a random action from your partner's primary love language.</p>
+      <div class="two-col mb-3">
+        <div>
+          <p style="font-size:0.8rem;font-weight:600;color:var(--mauve);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;">${esc(nA())}'s focus for ${esc(nB())}</p>
+          <div class="weekly-action-box" id="weekly-box-A">${esc(S.weeklyFocusA) || 'Click the button to get a focus for this week.'}</div>
+          <button class="btn btn-secondary btn-sm" onclick="generateWeeklyFocus('A')">Generate Focus</button>
+        </div>
+        <div>
+          <p style="font-size:0.8rem;font-weight:600;color:var(--sage);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;">${esc(nB())}'s focus for ${esc(nA())}</p>
+          <div class="weekly-action-box" id="weekly-box-B">${esc(S.weeklyFocusB) || 'Click the button to get a focus for this week.'}</div>
+          <button class="btn btn-secondary btn-sm" onclick="generateWeeklyFocus('B')">Generate Focus</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="navTo('reflections')">Reflections &rarr;</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderChallengePanel(p, plan) {
+  // p = 'A' means this is A's plan (A does actions FOR B)
+  const challenger  = p === 'A' ? nA() : nB();
+  const forPartner  = p === 'A' ? nB() : nA();
+  const checker     = p === 'A' ? S.challengeA : S.challengeB;
+  const done        = getChallengeProgress(checker);
+  const pct         = Math.round(done / 30 * 100);
+  const msg         = getProgressMsg(done);
+
+  return `
+  <div class="challenge-progress">
+    <div>
+      <div class="ch-prog-num">${done}</div>
+      <div class="ch-prog-label" style="color:var(--plum-mid);">of 30 days</div>
+    </div>
+    <div class="ch-prog-meta">
+      <div class="ch-prog-label">${esc(challenger)}'s 30 Days of Love for ${esc(forPartner)}</div>
+      <div class="ch-prog-bar"><div class="ch-prog-fill" style="width:${pct}%"></div></div>
+      <div class="ch-prog-msg">${esc(msg)}</div>
+    </div>
+    ${done === 30 ? '<span style="font-size:2rem;">🎉</span>' : ''}
+  </div>
+
+  <div class="challenge-list">
+    ${plan.map(d => {
+      const checked = !!(checker.checked && checker.checked[d.day]);
+      const noteVal = (checker.notes && checker.notes[d.day]) ? checker.notes[d.day] : '';
+      const ll = LL[d.ll] || { label:'Together', icon:'🌟', cls:'together', color: '#C89A4A' };
+      return `
+      <div class="ch-day${checked?' done':''}" id="chday-${p}-${d.day}">
+        <div class="ch-day-header">
+          <div class="ch-day-num">Day ${d.day}</div>
+          <div class="ch-action">${esc(d.action)}</div>
+          <span class="ch-lang-chip chip-${d.ll||'together'}">${ll.icon} ${ll.label}</span>
+          <button class="ch-check${checked?' checked':''}" onclick="toggleChallengeDay('${p}',${d.day})" title="${checked?'Mark incomplete':'Mark complete'}">
+            ${checked ? '✓' : ''}
+          </button>
+        </div>
+        <div class="ch-day-note">
+          <input type="text" class="ch-note-input" id="chnote-${p}-${d.day}" value="${esc(noteVal)}" placeholder="Add a note for Day ${d.day}..." oninput="saveChallengeNote('${p}',${d.day},this.value)" />
+        </div>
+      </div>`;
+    }).join('')}
   </div>`;
 }
 
-function renderChallengeDay(d) {
-  const checked = state.challengeChecked[d.day];
-  const note    = state.challengeNotes[d.day] || '';
-  const llKey   = d.ll === 'together' ? null : d.ll;
-  const ll      = llKey ? LL_INFO[llKey] : { label: 'Together', icon: '🌟', color: '#d4a043', cls: 'service' };
-
-  return `
-    <div class="challenge-day ${checked ? 'done' : ''}">
-      <div class="day-num">Day ${d.day}</div>
-      <div class="day-action">${escHtml(d.action)}</div>
-      <span class="day-lang-chip ll-${ll.cls}-chip">${ll.icon} ${ll.label}</span>
-      <button class="challenge-check ${checked ? 'checked' : ''}" onclick="toggleDay(${d.day})" title="${checked ? 'Mark incomplete' : 'Mark complete'}">
-        ${checked ? '✓' : ''}
-      </button>
-    </div>`;
+function switchChallengeTab(p) {
+  activeChallengeTab = p;
+  document.querySelectorAll('.ch-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ch-panel').forEach(pn => pn.classList.remove('active'));
+  const tabs = document.querySelectorAll('.ch-tab');
+  tabs[p === 'A' ? 0 : 1]?.classList.add('active');
+  document.getElementById('ch-panel-' + p)?.classList.add('active');
 }
 
-function toggleDay(day) {
-  state.challengeChecked[day] = !state.challengeChecked[day];
+function toggleChallengeDay(p, day) {
+  const checker = p === 'A' ? S.challengeA : S.challengeB;
+  if (!checker.checked) checker.checked = {};
+  checker.checked[day] = !checker.checked[day];
   persist();
-  // Re-render challenge page to update progress
-  document.getElementById('page-challenge').outerHTML = renderChallenge();
-  document.getElementById('page-challenge').classList.add('active');
-  bindChallengeFields();
+
+  // Update just the day row and progress bar
+  const dayEl = document.getElementById(`chday-${p}-${day}`);
+  if (dayEl) {
+    const checked = checker.checked[day];
+    dayEl.classList.toggle('done', checked);
+    const btn = dayEl.querySelector('.ch-check');
+    if (btn) { btn.classList.toggle('checked', checked); btn.textContent = checked ? '✓' : ''; }
+  }
+
+  // Update progress section
+  const done = getChallengeProgress(checker);
+  const pct  = Math.round(done / 30 * 100);
+  const panel = document.getElementById('ch-panel-' + p);
+  if (panel) {
+    const numEl = panel.querySelector('.ch-prog-num');
+    const fillEl = panel.querySelector('.ch-prog-fill');
+    const msgEl  = panel.querySelector('.ch-prog-msg');
+    if (numEl)  numEl.textContent = done;
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (msgEl)  msgEl.textContent = getProgressMsg(done);
+  }
 }
 
-function renderReflection() {
-  const rA = state.reflectionA;
-  const rB = state.reflectionB;
-  const rt = state.reflectionTogether;
+function saveChallengeNote(p, day, val) {
+  const checker = p === 'A' ? S.challengeA : S.challengeB;
+  if (!checker.notes) checker.notes = {};
+  checker.notes[day] = val;
+  persist();
+}
+
+function generateWeeklyFocus(p) {
+  // p = 'A' means A's focus for B, so based on B's scores
+  const targetQuiz = p === 'A' ? S.quizB : S.quizA;
+  let pool = [];
+  if (targetQuiz.done) {
+    const ranked = getRanked(targetQuiz.scores);
+    const primary = ranked[0].key;
+    pool = ACTION_POOL[primary];
+  } else {
+    // pick from all pools
+    pool = Object.values(ACTION_POOL).flat();
+  }
+  const action = pool[Math.floor(Math.random() * pool.length)];
+  if (p === 'A') { S.weeklyFocusA = action; } else { S.weeklyFocusB = action; }
+  persist();
+  const box = document.getElementById('weekly-box-' + p);
+  if (box) box.textContent = action;
+}
+
+function bindChallengeFields() {
+  bind('intent-A', S.challengeA, 'intention', 'si-intent');
+  bind('intent-B', S.challengeB, 'intention', 'si-intent');
+}
+
+// ── REFLECTIONS PAGE ─────────────────────────────────────────
+function renderReflections() {
+  const rA = S.reflectionA;
+  const rB = S.reflectionB;
+  const rt = S.reflectionTogether;
   return `
-    <div class="ornament-divider">✦ ✦ ✦</div>
-    <div class="card mb-3" style="background:linear-gradient(135deg,var(--warm1),var(--cream)); border:2px solid var(--blush); text-align:center; padding:2rem;">
-      <div style="font-size:2rem; margin-bottom:0.5rem;">🎉</div>
-      <h2 style="color:var(--brown); margin-bottom:0.5rem;">30-Day Challenge Reflection</h2>
-      <p style="color:var(--textMid); font-style:italic; font-family:'Playfair Display',serif;">"You showed up for each other for 30 days. Not perfectly, but persistently. And that is everything."</p>
+<div class="page${S.currentPage==='reflections'?' active':''}" id="page-reflections">
+  <div class="section-wrap">
+    <div class="section-header mb-3">
+      <span class="sec-tag">Reflection</span>
+      <h1 class="sec-title">30-Day Challenge <em>Reflection</em></h1>
+      <p class="sec-desc">Complete this page together on or after Day 30. You showed up for each other. Not perfectly, but persistently.</p>
     </div>
+
     <div class="reflection-grid mb-3">
       ${renderReflectionCard('A', rA)}
       ${renderReflectionCard('B', rB)}
     </div>
+
     <div class="card mb-3">
-      <h3 style="margin-bottom:0.8rem;">Together</h3>
+      <h3 class="mb-3">Together</h3>
       <div class="field-group">
         <label class="field-label">One commitment we're making to carry forward from this challenge is...</label>
-        <textarea id="reflect-together-commitment" rows="3" placeholder="...">${escHtml(rt.commitment)}</textarea>
+        <textarea id="ref-together-commit" rows="3" placeholder="...">${esc(rt.commitment)}</textarea>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+      <div class="two-col">
         <div class="field-group">
-          <label class="field-label">${escHtml(nameA())} signs</label>
-          <input class="styled-input" id="reflect-signA" value="${escHtml(state.reflectionA.sign||'')}" placeholder="${escHtml(nameA())}" />
+          <label class="field-label">${esc(nA())} signs</label>
+          <input id="ref-signA" class="text-input" value="${esc(rt.signA)}" placeholder="${esc(nA())}" />
         </div>
         <div class="field-group">
-          <label class="field-label">${escHtml(nameB())} signs</label>
-          <input class="styled-input" id="reflect-signB" value="${escHtml(state.reflectionB.sign||'')}" placeholder="${escHtml(nameB())}" />
+          <label class="field-label">${esc(nB())} signs</label>
+          <input id="ref-signB" class="text-input" value="${esc(rt.signB)}" placeholder="${esc(nB())}" />
         </div>
       </div>
-      <span class="saved-indicator" id="saved-reflection">✓ Saved</span>
+      <span class="saved-ind" id="si-reflection">✓ Saved</span>
     </div>
-    <div class="closing-hero" style="border-radius:var(--radius-lg);">
-      <div class="closing-heart">💞</div>
+
+    <div class="closing-hero">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">💞</div>
       <h1>Thank You for Doing This Work Together</h1>
-      <p>Not everyone chooses to understand their partner more deeply. The fact that you used this workbook says something real about both of you. Love doesn't ask for perfection. It asks for effort. You gave it.</p>
-      <p style="color:var(--textLight); font-size:0.85rem; margin-top:1rem;">With warmth, The Clarity Desk</p>
-    </div>`;
+      <p>Not everyone chooses to understand their partner more deeply. The fact that you picked up this workbook and actually used it says something real about both of you. Love doesn't ask for perfection. It asks for effort. You gave it.</p>
+      <p style="color:var(--blush);font-size:0.85rem;margin-top:1rem;">With warmth, The Clarity Desk</p>
+    </div>
+
+    <div class="mt-4 text-center">
+      <button class="btn-print btn-lg" onclick="printWorkbook()">🖨️ Print Your Workbook as PDF</button>
+    </div>
+  </div>
+</div>`;
 }
 
 function renderReflectionCard(p, r) {
-  const pName  = p === 'A' ? nameA() : nameB();
-  const pOther = p === 'A' ? nameB() : nameA();
-  const sid    = 'saved-ref-' + p;
+  const pName  = p === 'A' ? nA() : nB();
+  const pOther = p === 'A' ? nB() : nA();
+  const badge  = p === 'A' ? 'p-badge-a' : 'p-badge-b';
+  const sid    = 'si-ref-' + p;
   return `
-    <div class="reflection-card">
-      <div class="partner-badge">${p==='A'?'🌸':'🌿'} ${escHtml(pName)}</div>
-      <div class="field-group">
-        <label class="field-label">The day that meant the most to me was Day ___ because...</label>
-        <input class="styled-input" id="ref-${p}-dayMeant" value="${escHtml(r.dayMeant)}" placeholder="Day number and why..." />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Something I noticed shift between us this month was...</label>
-        <textarea id="ref-${p}-noticed" rows="2" placeholder="...">${escHtml(r.noticed)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">The love language action that surprised me most was...</label>
-        <textarea id="ref-${p}-surprised" rows="2" placeholder="...">${escHtml(r.surprised)}</textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label">What I now understand about how ${escHtml(pOther)} needs to be loved is...</label>
-        <textarea id="ref-${p}-understand" rows="2" placeholder="...">${escHtml(r.understand)}</textarea>
-      </div>
-    </div>`;
+  <div class="ref-card">
+    <div class="p-badge ${badge}">${p==='A'?'🌸':'🌿'} ${esc(pName)}</div>
+    <div class="field-group">
+      <label class="field-label">The day that meant the most to me was Day ___ because...</label>
+      <input id="ref-${p}-dayMeant" class="text-input" value="${esc(r.dayMeant)}" placeholder="Day and reason..." />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Something I noticed shift between us this month was...</label>
+      <textarea id="ref-${p}-noticed" rows="2" placeholder="...">${esc(r.noticed)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">The action that surprised me most was...</label>
+      <textarea id="ref-${p}-surprised" rows="2" placeholder="...">${esc(r.surprised)}</textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label">What I now understand about how ${esc(pOther)} needs to be loved is...</label>
+      <textarea id="ref-${p}-understand" rows="2" placeholder="...">${esc(r.understand)}</textarea>
+    </div>
+    <span class="saved-ind" id="${sid}">✓ Saved</span>
+  </div>`;
 }
 
-function bindChallengeFields() {
-  bindTextarea(document.getElementById('intention-A'), state, 'intentionA', 'saved-intent');
-  bindTextarea(document.getElementById('intention-B'), state, 'intentionB', 'saved-intent');
-  const sd = document.getElementById('challenge-start');
-  if (sd) { sd.value = state.challengeStartDate || ''; sd.addEventListener('change', () => { state.challengeStartDate = sd.value; persist(); }); }
-
-  // Reflection fields
-  const rc = document.getElementById('reflect-together-commitment');
-  if (rc) { rc.value = state.reflectionTogether.commitment || ''; rc.addEventListener('input', () => { state.reflectionTogether.commitment = rc.value; persist(); showSaved('saved-reflection'); }); }
-  const rsA = document.getElementById('reflect-signA');
-  const rsB = document.getElementById('reflect-signB');
-  if (rsA) { rsA.value = state.reflectionA.sign||''; rsA.addEventListener('input', () => { state.reflectionA.sign=rsA.value; persist(); showSaved('saved-reflection'); }); }
-  if (rsB) { rsB.value = state.reflectionB.sign||''; rsB.addEventListener('input', () => { state.reflectionB.sign=rsB.value; persist(); showSaved('saved-reflection'); }); }
-
-  ['A','B'].forEach(p => {
-    const r = p === 'A' ? state.reflectionA : state.reflectionB;
-    ['dayMeant','noticed','surprised','understand'].forEach(k => {
-      const el = document.getElementById('ref-' + p + '-' + k);
-      if (!el) return;
-      el.value = r[k] || '';
-      el.addEventListener('input', () => { r[k] = el.value; persist(); showSaved('saved-ref-' + p); });
-    });
+function bindReflectionFields() {
+  const rt = S.reflectionTogether;
+  const rA = S.reflectionA;
+  const rB = S.reflectionB;
+  bind('ref-together-commit', rt, 'commitment', 'si-reflection');
+  bind('ref-signA', rt, 'signA', 'si-reflection');
+  bind('ref-signB', rt, 'signB', 'si-reflection');
+  ['dayMeant','noticed','surprised','understand'].forEach(k => {
+    bind('ref-A-'+k, rA, k, 'si-ref-A');
+    bind('ref-B-'+k, rB, k, 'si-ref-B');
   });
 }
 
-// ─── MAIN RENDER ─────────────────────────────────────────────
+// ── PRINT ─────────────────────────────────────────────────────
+function printWorkbook() { window.print(); }
+
+// ── MAIN RENDER ───────────────────────────────────────────────
 function renderApp() {
   const app = document.getElementById('app');
   app.innerHTML =
     renderNav() +
     renderCover() +
     renderHowTo() +
-    renderQuiz() +
+    renderQuizPage() +
     renderResults() +
     renderUnderstand() +
     renderDaily() +
-    renderChallenge();
+    renderChallengePage() +
+    renderReflections();
 
-  // Bind all fields after render
-  bindWarmupFields();
-  bindChallengeFields();
-
-  // Bind profile/result fields on next tick (they only exist if relevant page)
-  setTimeout(() => {
-    bindProfileFields();
-    bindUnderstandFields();
-    bindDailyFields();
-    renderQuizBody();
-  }, 0);
-
-  // Show correct page
-  const pg = state.currentPage || 'cover';
+  // Activate current page
+  const pg = S.currentPage || 'cover';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const activePg = document.getElementById('page-' + pg);
-  if (activePg) activePg.classList.add('active');
-  const activeNb = document.querySelector('[data-page="' + pg + '"]');
-  if (activeNb) activeNb.classList.add('active');
+  const pgEl = document.getElementById('page-' + pg);
+  if (pgEl) pgEl.classList.add('active');
+  const nbEl = document.querySelector(`.nav-btn[data-page="${pg}"]`);
+  if (nbEl) nbEl.classList.add('active');
 
-  // Draw chart if needed
-  if (pg === 'understand' && state.quizDoneA && state.quizDoneB) setTimeout(drawUnderstandChart, 120);
-  if (pg === 'results') setTimeout(() => {
-    bindProfileFields();
-    if (state.quizDoneA && state.quizDoneB) {
-      // check if side-by-side panel is active
-      const panel = document.getElementById('result-panel-both');
-      if (panel && panel.classList.contains('active')) drawCompChart();
-    }
-  }, 50);
+  // Bind fields for current page
+  setTimeout(() => {
+    bindPageFields(pg);
+    // Always bind quiz bodies since they have their own containers
+    renderQuizBody('A');
+    renderQuizBody('B');
+  }, 30);
 }
 
-// ─── INIT ─────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  S = loadState();
   renderApp();
 });
