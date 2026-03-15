@@ -471,8 +471,8 @@ function renderTransitionScreen(p) {
   const isActive = S.screen === `trans${p}`;
   return `
 <div class="screen${isActive?' active':''}" id="screen-trans${p}">
-  <div class="screen-inner" style="padding-top:2rem;">
-    ${renderTransition(p)}
+  <div class="screen-inner" style="padding-top:2rem;" id="trans${p}-inner">
+    ${isActive ? renderTransition(p) : ''}
   </div>
 </div>`;
 }
@@ -830,7 +830,12 @@ function goTo(screen) {
   const si = document.getElementById('step-indicator');
   if (si) si.outerHTML = renderStepIndicator();
 
-  // Post-activate actions
+  // Post-activate actions: inject transition content at navigate time (quiz is done now)
+  if (screen === 'transA' || screen === 'transB') {
+    const p = screen === 'transA' ? 'A' : 'B';
+    const inner = document.getElementById(`trans${p}-inner`);
+    if (inner) inner.innerHTML = renderTransition(p);
+  }
   if (screen === 'results') {
     setTimeout(drawResultsChart, 80);
   }
