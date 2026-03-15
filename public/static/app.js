@@ -982,30 +982,90 @@ function skipField(keyA, keyB) {
   if (el) el.outerHTML = renderPersonal();
 }
 
-/* ── SCREEN 6: DOWNLOAD ──────────────────────────────────────── */
+/* ── SCREEN 6: DOWNLOAD (workbook preview + save instructions) ── */
 function renderDownload() {
   const isActive = S.screen === 'download';
   return `
 <div class="screen${isActive?' active':''}" id="screen-download">
-  <div class="download-screen-inner">
-    <div class="download-check">&#10003;</div>
-    <div class="download-names">${esc(nA())} &amp; ${esc(nB())}</div>
-    <h1 class="download-title">Your workbook is ready.</h1>
-    <p class="download-sub">Your personalized Love Languages Workbook has been built with your names, quiz results, compatibility insights, and a 30-day plan tailored to each of you. Save this file. Everything you need is inside.</p>
-    <div class="download-btns">
-      <button class="btn btn-plum btn-full btn-lg" onclick="triggerPrint()">&#128438; Download / Print as PDF</button>
-      <button class="btn btn-ghost btn-sm" onclick="goTo('results')">&larr; Review Results</button>
-      <button class="btn btn-ghost btn-sm" onclick="goTo('personal')">&larr; Edit Personalization</button>
-      <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over with New Names</button>
+
+  <!-- TOP HEADER BAR -->
+  <div class="wb-preview-header">
+    <div class="wb-preview-header-left">
+      <div class="wb-preview-check">&#10003;</div>
+      <div>
+        <div class="wb-preview-names">${esc(nA())} &amp; ${esc(nB())}</div>
+        <div class="wb-preview-subtitle">Your workbook is ready to preview and save.</div>
+      </div>
     </div>
-    <p class="download-note">Works best in Chrome or Safari. Choose "Save as PDF" in the print dialog.</p>
+    <div class="wb-preview-header-nav">
+      <button class="btn btn-ghost btn-sm" onclick="goTo('personal')">&larr; Edit</button>
+      <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over</button>
+    </div>
   </div>
+
+  <!-- HOW TO SAVE BANNER -->
+  <div class="wb-save-banner">
+    <div class="wb-save-banner-title">&#128438; How to save your workbook as a PDF</div>
+    <div class="wb-save-steps">
+      <div class="wb-save-step">
+        <div class="wb-save-step-num">1</div>
+        <div class="wb-save-step-text">Click <strong>Download &amp; Save as PDF</strong> below</div>
+      </div>
+      <div class="wb-save-step">
+        <div class="wb-save-step-num">2</div>
+        <div class="wb-save-step-text">The print dialog opens. Look for <strong>Destination</strong> or <strong>Printer</strong></div>
+      </div>
+      <div class="wb-save-step">
+        <div class="wb-save-step-num">3</div>
+        <div class="wb-save-step-text">Change it to <strong>"Save as PDF"</strong> (Chrome / Edge) or <strong>"PDF"</strong> dropdown (Safari)</div>
+      </div>
+      <div class="wb-save-step">
+        <div class="wb-save-step-num">4</div>
+        <div class="wb-save-step-text">Click <strong>Save</strong> and choose where to store your file</div>
+      </div>
+    </div>
+    <div class="wb-save-tips">
+      <span class="wb-save-tip">&#x1F4BB; <strong>Chrome / Edge:</strong> Destination &rarr; Save as PDF</span>
+      <span class="wb-save-tip">&#x1F34E; <strong>Safari:</strong> Bottom-left PDF dropdown &rarr; Save as PDF</span>
+      <span class="wb-save-tip">&#x1F98A; <strong>Firefox:</strong> Printer &rarr; Microsoft Print to PDF (Windows) or Save to PDF (Mac)</span>
+    </div>
+  </div>
+
+  <!-- WORKBOOK PREVIEW (all print pages shown on screen) -->
+  <div class="wb-preview-scroll">
+    <div class="wb-page-stack" id="wb-preview-doc">
+      <!-- content injected by buildAndShowPreview() -->
+    </div>
+  </div>
+
+  <!-- STICKY BOTTOM CTA -->
+  <div class="wb-sticky-cta">
+    <div class="wb-sticky-inner">
+      <div class="wb-sticky-label">
+        <span class="wb-sticky-check">&#10003;</span>
+        <span>Scroll through your workbook above, then save it.</span>
+      </div>
+      <button class="btn btn-plum btn-lg wb-print-btn" onclick="triggerPrint()">
+        &#128438; Download &amp; Save as PDF
+      </button>
+    </div>
+    <div class="wb-sticky-reminder">In the print dialog: change Destination / Printer to <strong>"Save as PDF"</strong> to get a file instead of printing on paper.</div>
+  </div>
+
 </div>`;
 }
 
 function buildAndDownload() {
   buildPrintDocument();
   goTo('download');
+  // Also populate the on-screen preview
+  setTimeout(() => {
+    const printDoc = document.getElementById('print-doc');
+    const previewDoc = document.getElementById('wb-preview-doc');
+    if (printDoc && previewDoc) {
+      previewDoc.innerHTML = printDoc.innerHTML;
+    }
+  }, 60);
 }
 
 /* ── NAVIGATION ──────────────────────────────────────────────── */
@@ -1043,6 +1103,16 @@ function goTo(screen) {
       if (newResEl) newResEl.classList.add('active');
     }
     setTimeout(drawResultsChart, 80);
+  }
+  if (screen === 'download') {
+    // Populate the on-screen preview from the hidden print-doc
+    setTimeout(() => {
+      const printDoc = document.getElementById('print-doc');
+      const previewDoc = document.getElementById('wb-preview-doc');
+      if (printDoc && previewDoc && !previewDoc.innerHTML.trim()) {
+        previewDoc.innerHTML = printDoc.innerHTML;
+      }
+    }, 60);
   }
 }
 
