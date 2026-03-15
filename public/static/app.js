@@ -162,85 +162,214 @@ function getCompatKey(kA, kB) {
   return [kA, kB].sort().join('-');
 }
 
+/* ── SAME-LANGUAGE BONUS INSIGHTS ───────────────────────────── */
+// When both partners share the same primary language, the generic compat insight
+// still applies but we add a tailored bonus section with extra depth.
+const SAME_LANG_BONUS = {
+  words: {
+    gift: "You both feel most loved when someone names what they see in you. This means you already understand the stakes of staying specific and sincere, and you are more likely than most couples to actually do it.",
+    blind: "The blind spot for same-language affirmation couples is a cycle where both wait to feel loved before they give love. If both of you need words to feel safe enough to give words, silence can creep in even when neither of you wants it.",
+    practice: "Take turns initiating. Make a rule: whoever feels less filled up this week writes a note first. The one who reaches first often discovers they needed to as much as their partner did.",
+    uniqueA: "Your version of affirmation tends to run deeper when it names something your partner has not noticed about themselves. Look for the things they do not celebrate in themselves and say those out loud.",
+    uniqueB: "Your version of affirmation lands hardest when it is unprompted, when nothing happened to earn it. The random Tuesday message hits harder than the birthday card. Practice the unexpected one."
+  },
+  time: {
+    gift: "You both feel love through presence. This is one of the most powerful things two people can share: a mutual understanding that showing up, fully, is the most important thing.",
+    blind: "The trap for same-language time couples is parallel presence, being in the same room but each on a screen or in your own world. That proximity can start to feel like connection when it is not quite.",
+    practice: "Add one protected ritual where both of you agree: no phones, no task lists, no half-attention. It does not need to be long. Twenty minutes of actual presence is worth more than a whole evening of shared distraction.",
+    uniqueA: "Your best version of quality time is probably the unplanned kind, a drive that goes longer than expected, an evening that just keeps going. Make room for that spontaneity intentionally.",
+    uniqueB: "Your best version of quality time probably involves ritual and anticipation. A standing date you can look forward to, something that belongs to just the two of you, fills your tank more than the spontaneous moments."
+  },
+  touch: {
+    gift: "Physical closeness is a shared language and a shared comfort for you both. You are unlikely to have to explain why a hug matters, or why going too long without physical warmth starts to feel like something is off.",
+    blind: "Even when two people share this language, the texture of what they need can differ. One may need frequent casual contact throughout the day. The other may need less frequent but more intentional held moments. Neither is right.",
+    practice: "Have a direct conversation about what kinds of touch feel most like love versus most like habit. The answer may surprise you both. Getting specific about your version of the language makes it land better.",
+    uniqueA: "Your version of physical touch is probably most meaningful when it comes in a moment that needed nothing. A hand on the back when you pass in the kitchen. A touch that says: I see you, no agenda.",
+    uniqueB: "Your version of physical touch is probably most meaningful when it is slow and deliberate. The held hug. The hand that stays. The quiet physical closeness that makes space to feel safe."
+  },
+  service: {
+    gift: "You both feel loved through action, and both of you are likely already showing love through what you do rather than what you say. You may be fluent in each other's love in ways neither of you has named yet.",
+    blind: "The risk for same-language service couples is invisible scoreboards. Both partners are tracking what they do, both feel like they give more than they get, and neither is saying any of it out loud.",
+    practice: "Once a week, each of you names one thing the other did that you actually noticed and appreciated. Out loud. Specifically. The invisible work only stops feeling invisible when it gets named.",
+    uniqueA: "Your version of service tends to show love through big tasks handled reliably. You follow through. You take things fully off the table. That reliability is love, and it deserves to be seen.",
+    uniqueB: "Your version of service tends to show love through small, consistent attentiveness: the detail that was remembered, the thing prepared before it was needed. That thoughtfulness is love, and it deserves to be named."
+  },
+  gifts: {
+    gift: "You both understand that a small, thoughtful token is not really about the thing itself. It is about proof: you were in my mind when you were not in the room. That shared understanding is rare.",
+    blind: "When both partners speak this language, the pressure around occasions and gestures can quietly escalate. Both are watching, both are keeping track, and a forgotten moment can sting more than it would with a different partner.",
+    practice: "Take the pressure off by building small, frequent, no-occasion giving into your ordinary life. The Sunday coffee brought home just because, the sticker that said they were thinking of you. Lower the stakes and raise the frequency.",
+    uniqueA: "Your version of gift-giving shows love through things that prove you were listening. The item they mentioned once months ago. The book that matched something they said last week. Proof of attention is your love language within the language.",
+    uniqueB: "Your version of gift-giving shows love through things that mark the moment. A memento of something you shared. A photo of a day that mattered. You give love that says: I want to remember this with you."
+  }
+};
+
 /* ── ACTION POOL ─────────────────────────────────────────────── */
+// 20 items per language. Items 0-14 go to the Action Menu. Items 5-19 go to the 30-Day Plan.
+// When both partners share a language, partner A uses even-indexed items and partner B uses odd-indexed items
+// so their lists never look identical even for the same language.
 const ACTION_POOL = {
   words: [
-    "Send a voice note that says something specific you love about them, not a text but a voice note",
+    // 0-9: Action Menu primary set
+    "Send a voice note that says something specific you love about them, not a text, a voice note",
     "Leave a handwritten note somewhere they'll find it after you've gone",
     "Say \"I'm proud of you\" out loud, unprompted, and mean it",
-    "Text them on a random Tuesday just to say you were thinking of them",
+    "Text them on a random Tuesday just to say you were thinking about them",
     "Tell them one thing they do that you would genuinely miss if they stopped",
-    "Thank them for something specific they did this week and name it clearly",
-    "Say out loud what you find beautiful about them, not just physically",
-    "Share a memory of a moment with them that made you think: I'm so glad I have this person",
+    "Thank them for something specific they did this week and name exactly what it was",
+    "Say out loud what you find beautiful about them, not just physically but who they are",
+    "Share a memory of a moment that made you think: I am so glad I have this person",
     "Read something they wrote, made, or shared and tell them what it meant to you",
-    "Before you fall asleep tonight, say one true thing you love about who they are"
+    "Before you fall asleep tonight, say one true thing you love about who they are",
+    // 10-19: 30-Day Plan set (no overlap with above)
+    "Write them a real letter, not a text, and give it to them with no occasion required",
+    "Tell them one way they have changed you for the better, and be specific about what changed",
+    "Compliment them in front of someone else, genuinely, without making it a performance",
+    "When they accomplish something, no matter how small, name it and celebrate it out loud",
+    "Ask them what words of yours have meant the most to them, then listen without deflecting",
+    "Tell them what you were thinking about them when they were not in the room",
+    "Say \"I love you\" in a different way today, not just the phrase but the reason behind it",
+    "Write down three things you respect about them and read the list to them tonight",
+    "When they share something difficult, say back what you heard before you respond",
+    "Find the one thing they have been hoping you would notice and name it unprompted"
   ],
   time: [
-    "Have a phone-free dinner with phones in another room and just the two of you",
-    "Take a 20-minute walk together with nowhere to go and no agenda",
-    "Ask one question and actually listen: what's something you haven't told anyone lately?",
-    "Cook a meal together with music on and no rushing",
-    "Establish a tiny ritual that's just yours: morning coffee, evening walk, Sunday breakfast",
-    "Watch something they've been wanting to watch, without your phone in your hand",
-    "Drive somewhere with no destination, just drive and talk",
-    "Sit outside after dark, say nothing, and just be there",
-    "Revisit somewhere meaningful to your relationship: a first date spot, a favorite place",
-    "Plan a no-phone hour and sit together, make something, play something, or just be present"
+    // 0-9: Action Menu primary set
+    "Have a phone-free dinner, phones in another room, just the two of you and a real conversation",
+    "Take a 20-minute walk with nowhere to go and no agenda except being together",
+    "Ask one question and actually listen: what is something you have not told anyone lately?",
+    "Cook a meal together with music on and no rushing, the cooking is the date",
+    "Establish a tiny ritual that belongs only to the two of you: morning coffee, evening walk, Sunday breakfast",
+    "Watch something they have been wanting to watch with your phone face-down the whole time",
+    "Drive somewhere with no destination, just drive and talk until you feel finished",
+    "Sit outside after dark, say nothing, and just be there together without filling the silence",
+    "Revisit somewhere meaningful to your relationship: your first date spot, a favorite corner of the city",
+    "Plan a no-phone hour and sit together, make something, play a game, or just be present",
+    // 10-19: 30-Day Plan set
+    "Schedule a standing date this week and protect it like a meeting you cannot reschedule",
+    "Give them your complete, undivided attention for one full hour with zero interruptions",
+    "Plan something they have mentioned wanting to do and surprise them with the details handled",
+    "Have a conversation where you ask more questions than you make statements",
+    "Put your phone in another room for the first hour after you both get home",
+    "Wake up 20 minutes earlier and spend that time together before the day starts",
+    "Say yes the next time they ask you to do something, even if it is not your preference",
+    "Stay up a little later than usual just to talk about nothing important",
+    "Create a shared ritual you can do weekly, something small that marks the week as yours",
+    "Give them a full evening with no tasks, no planning, just the two of you present"
   ],
   touch: [
-    "Give a real hug, not a pat, but a proper hug that you hold for a moment",
-    "Reach for their hand during a movie or while you're sitting together",
-    "Put a hand on their back when you walk past them in the kitchen",
-    "Greet them when they come home and actually stop what you're doing",
-    "Sit close enough to be touching when you're resting or watching something",
+    // 0-9: Action Menu primary set
+    "Give a real hug today, not a pat but a proper held hug that lasts a full moment",
+    "Reach for their hand during a movie or while you are sitting quietly together",
+    "Put a hand on their back when you walk past them in the kitchen, just in passing",
+    "When they come home, stop what you are doing and greet them properly",
+    "Sit close enough to be touching when you are resting or watching something",
     "Give an unprompted shoulder rub, not as a lead-up to anything, just because",
-    "Touch their face gently, just once, and mean it",
+    "Touch their face gently, just once, with intention",
     "Hold hands when you walk somewhere, even just from the car to the door",
-    "Stay physically close during a hard conversation instead of pulling away",
-    "Fall asleep touching, because even just feet touching under the covers counts"
+    "Stay physically close during a hard conversation instead of pulling away or going cold",
+    "Fall asleep touching, because even feet touching under the covers counts",
+    // 10-19: 30-Day Plan set
+    "Give a longer hug than usual when you say goodbye, even if it is just for a few hours",
+    "Sit beside them instead of across from them when you eat together",
+    "Brush their hair, rub their feet, or offer physical care without it needing to lead anywhere",
+    "Reach for them first when you wake up before either of you checks a phone",
+    "Maintain physical contact during a conversation that matters, a hand on the knee, side by side",
+    "Offer a back rub that has no agenda and no time limit",
+    "When they are stressed, sit beside them quietly and just be physically present",
+    "Take their hand under the table the next time you are out together",
+    "Slow down a hug next time, stay in it a beat longer than usual",
+    "Make physical warmth a greeting ritual: every hello and goodbye gets real contact"
   ],
   service: [
-    "Handle one task they've been putting off and do it quietly without announcement",
-    "Fill their gas tank before they realize it needs it",
+    // 0-9: Action Menu primary set
+    "Handle one task they have been putting off and do it quietly without announcement",
+    "Fill their gas tank or charge their device before they notice it needs it",
     "Make their coffee or breakfast exactly how they like it before they ask",
-    "Take the task they dread most this week and just do it",
-    "Book the thing, make the call, handle the appointment they've been meaning to schedule",
-    "Clean or organize one space in your home they find stressful",
-    "Handle bedtime, dinner, or another recurring task solo and tell them to rest",
-    "Send them a text: is there anything I can take off your plate today?",
-    "Grocery shop for what they need specifically, not just what you want",
-    "Follow through on something you said you'd do, all the way, without being reminded"
+    "Take the task they dread most this week and just do it without being asked",
+    "Book the thing, make the call, handle the appointment they have been meaning to schedule",
+    "Clean or organize one space in your home that they find stressful",
+    "Handle bedtime, dinner, or another recurring task solo so they can rest without guilt",
+    "Send them a text: what is one thing on your plate today that I can just take?",
+    "Grocery shop for what they specifically need, not just what is easy for you",
+    "Follow through on something you said you would do, all the way, without being reminded",
+    // 10-19: 30-Day Plan set
+    "Quietly handle a chore they did not ask you to do, before they notice it was needed",
+    "Research and book something they have been putting off because it felt like too much effort",
+    "Take a recurring task fully off their plate for one full week without mentioning it",
+    "When they seem overwhelmed, ask specifically what would help most right now, then do it",
+    "Prepare something ahead of time so they do not have to think about it, pack their bag, prep their lunch",
+    "Handle all logistics for your next shared plan without delegating any of it to them",
+    "Do something that will make tomorrow easier for them without telling them until after",
+    "Follow through on a commitment they did not remind you about, because you remembered yourself",
+    "Notice something they have been tolerating and fix it without making it a thing",
+    "Send a message midday: I handled that thing. You do not need to think about it."
   ],
   gifts: [
-    "Pick up their favorite snack or drink when you're out and don't wait for a reason",
-    "Bring home flowers on a completely ordinary day",
+    // 0-9: Action Menu primary set
+    "Pick up their favorite snack or drink when you are out and do not wait for a reason",
+    "Bring home flowers on a completely ordinary day with no occasion attached",
     "Save a ticket stub, a receipt, or a small memento from something you did together",
-    "Order something small you heard them mention once, as proof that you listen",
-    "Leave a little package somewhere they'll find it with no occasion needed",
-    "Send them a book, article, or song that made you think of them",
-    "Get them something themed around an inside joke or shared memory",
-    "Put together a playlist of songs that remind you of them and send it with a note",
-    "The next time you travel anywhere, even briefly, bring something back",
-    "Print and frame a photo from a moment that mattered to both of you"
+    "Order something small you heard them mention once, as proof that you were listening",
+    "Leave a little package somewhere they will find it with no occasion required",
+    "Send them a book, an article, or a song that made you think of them specifically",
+    "Get them something themed around an inside joke or a shared memory only you two have",
+    "Put together a playlist of songs that remind you of them and send it with a real note",
+    "The next time you travel anywhere at all, even briefly, bring something back",
+    "Print and frame a photo from a moment that genuinely mattered to both of you",
+    // 10-19: 30-Day Plan set
+    "Pick something up that requires zero occasion and leave it where they will find it",
+    "Write down five things that remind you of them and find a small version of one to give",
+    "Get them something related to a hobby, interest, or goal they mentioned recently",
+    "Put a small surprise in their bag, pocket, or car just to mark an ordinary Tuesday",
+    "Make something instead of buying it: a handwritten list, a printed photo, a small creation",
+    "Bring home food from the place they always talk about but you never actually go to",
+    "Find the specific version of something they always compromise on and get the good one",
+    "Frame a moment from this year and give it to them with no explanation needed",
+    "Get them something they would never buy for themselves but would genuinely love",
+    "Find a small way to mark something they are proud of, a ribbon, a note, a tiny celebration"
   ]
 };
 
-const DATE_IDEAS = [
-  { ll: "Words",   i1: "A love letter dinner: you each write a real letter and read them aloud over a meal", i2: "A memory jar date: write your 5 favorite memories on slips and pull them together" },
-  { ll: "Time",    i1: "A full tech-free evening: cook together, eat together, play a game, talk", i2: "A yes night: one partner plans the entire evening around what the other person loves most" },
-  { ll: "Touch",   i1: "A slow evening at home with a long bath, a real massage, music, and no agenda", i2: "A stargazing night: lay outside, stay close, and talk about nothing and everything" },
-  { ll: "Service", i1: "Each partner secretly handles three things the other has been putting off, then reveal at dinner", i2: "A take care of you date: one partner plans everything, the other just receives" },
-  { ll: "Gifts",   i1: "A scavenger hunt where each clue comes with a small meaningful gift", i2: "A box of us date: each bring 5 things that represent something about your relationship" }
-];
+// Same-language action sets: when A and B share the same primary language,
+// A receives even-indexed items (0,2,4...) and B receives odd-indexed (1,3,5...)
+// so their action menus and plans read distinctly different.
+function getActionSetForPartner(langKey, partnerSlot) {
+  // partnerSlot: 'A' or 'B'. When same language, A=even offsets B=odd offsets.
+  const pool = ACTION_POOL[langKey];
+  if (partnerSlot === 'B') {
+    // Offset by 1 so actions feel like a different angle on the same theme
+    return pool.map((_, i) => pool[(i + 1) % pool.length]);
+  }
+  return pool;
+}
 
-/* ── PERSONALIZED 30-DAY PLAN ───────────────────────────────── */
-function buildPersonalizedPlan(targetScores) {
+// Build action list for the print Action Menu.
+// The Action Menu ALWAYS uses items 0-9 from primary and 0-4 from secondary (no overlap with 30-Day Plan).
+// actionMenuOffset shifts the starting position within those first 10/5 items
+// so same-language partners see different actions.
+function buildActionList(primaryKey, secondaryKey, actionMenuOffset) {
+  const off = actionMenuOffset || 0;
+  const pool1 = ACTION_POOL[primaryKey];
+  const pool2 = ACTION_POOL[secondaryKey];
+  const list = [];
+  // 10 from primary: draw from items 0-9 only, starting at off (wrap within 0-9)
+  for (let i = 0; i < 10; i++) list.push({ a: pool1[(i + off) % 10], ll: primaryKey });
+  // 5 from secondary: draw from items 0-9 only, starting at off (wrap within 0-9)
+  for (let i = 0; i < 5; i++) list.push({ a: pool2[(i + off) % 10], ll: secondaryKey });
+  return list;
+}
+
+// Build 30-day plan for a partner: uses items from index 10-19 ONLY to guarantee
+// zero overlap with the Action Menu (which uses items 0-9).
+// planOffset shifts within the 10-item plan set (items 10-19) for same-language variety.
+function buildPersonalizedPlan(targetScores, planOffset) {
   const keys = ['words','time','touch','service','gifts'];
+  const off = planOffset || 0;
   if (!targetScores || !Object.keys(targetScores).length) {
     return Array.from({length:30}, (_,i) => ({
       day: i+1, ll: keys[i % keys.length],
-      action: ACTION_POOL[keys[i % keys.length]][i % 10]
+      // Use items 10-19 (the plan-only set), wrapped within 10 items
+      action: ACTION_POOL[keys[i % keys.length]][10 + ((i + off) % 10)]
     }));
   }
   const total = Object.values(targetScores).reduce((a,b)=>a+b,0) || 1;
@@ -250,11 +379,14 @@ function buildPersonalizedPlan(targetScores) {
     if (i === sorted.length - 1) { alloc[k] = 30 - assigned; }
     else { alloc[k] = Math.max(1, Math.round((targetScores[k]/total)*30)); assigned += alloc[k]; }
   });
-  // Build interleaved plan
   const buckets = {};
   sorted.forEach(k => {
     buckets[k] = [];
-    for (let i = 0; i < alloc[k]; i++) buckets[k].push({ ll: k, action: ACTION_POOL[k][i % 10] });
+    const pool = ACTION_POOL[k];
+    for (let i = 0; i < alloc[k]; i++) {
+      // Draw from items 10-19 only (the plan-only set), offset by planOffset within that range
+      buckets[k].push({ ll: k, action: pool[10 + ((i + off) % 10)] });
+    }
   });
   const interleaved = [];
   const maxB = Math.max(...Object.values(buckets).map(b=>b.length));
@@ -263,6 +395,14 @@ function buildPersonalizedPlan(targetScores) {
   }
   return interleaved.slice(0,30).map((d,i) => ({ day: i+1, ll: d.ll, action: d.action }));
 }
+
+const DATE_IDEAS = [
+  { ll: "Words",   i1: "A love letter dinner: you each write a real letter and read them aloud over a meal", i2: "A memory jar date: write your 5 favorite memories on slips and pull them together" },
+  { ll: "Time",    i1: "A full tech-free evening: cook together, eat together, play a game, talk", i2: "A yes night: one partner plans the entire evening around what the other person loves most" },
+  { ll: "Touch",   i1: "A slow evening at home with a long bath, a real massage, music, and no agenda", i2: "A stargazing night: lay outside, stay close, and talk about nothing and everything" },
+  { ll: "Service", i1: "Each partner secretly handles three things the other has been putting off, then reveal at dinner", i2: "A take care of you date: one partner plans everything, the other just receives" },
+  { ll: "Gifts",   i1: "A scavenger hunt where each clue comes with a small meaningful gift", i2: "A box of us date: each bring 5 things that represent something about your relationship" }
+];
 
 /* ── STATE ───────────────────────────────────────────────────── */
 const SK = 'llw_v3';
@@ -459,8 +599,14 @@ function renderQuizScreen(p) {
       <span class="quiz-nav-center">${answered} / 20 answered</span>
       ${curQ < 20
         ? `<button class="btn btn-mauve btn-sm" onclick="quizNext('${p}')">Next &rarr;</button>`
-        : `<button class="btn btn-plum btn-sm" onclick="quizSubmit('${p}')" ${answered<20?'disabled':''}>See My Results &rarr;</button>`
+        : (answered >= 20 && quiz.answers[curQ])
+          ? `<button class="btn btn-plum btn-sm" disabled style="opacity:0.85;">Getting your results... &#10003;</button>`
+          : `<button class="btn btn-plum btn-sm" onclick="quizSubmit('${p}')" ${answered<20?'disabled':''}>See My Results &rarr;</button>`
       }
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <button class="btn btn-ghost-plum btn-sm" onclick="goTo('welcome')">&larr; Back to Start</button>
+      <button class="btn btn-ghost-plum btn-sm" style="margin-left:0.5rem;" onclick="startOver()">Start Over</button>
     </div>
   </div>
 </div>`;
@@ -485,13 +631,19 @@ function selectAns(p, choice) {
   // Re-render just this quiz screen
   const el = document.getElementById(`screen-quiz${p}`);
   if (el) el.outerHTML = renderQuizScreen(p);
-  // Auto-advance
+
+  const totalAnswered = Object.keys(quiz.answers).length;
+
   if (curQ < 20) {
+    // Auto-advance to next question
     setTimeout(() => {
       if (p === 'A') S.qcA = curQ + 1; else S.qcB = curQ + 1;
       const el2 = document.getElementById(`screen-quiz${p}`);
       if (el2) el2.outerHTML = renderQuizScreen(p);
     }, 320);
+  } else if (totalAnswered >= 20) {
+    // On Q20 and all questions answered: auto-submit after brief pause
+    setTimeout(() => quizSubmit(p), 650);
   }
 }
 
@@ -559,8 +711,15 @@ function renderTransition(p) {
       <button class="btn btn-sage btn-lg" onclick="goTo('quizB')">
         ${esc(other)}'s Quiz &rarr;
       </button>
+      <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:0.75rem;">
+        <button class="btn btn-ghost-plum btn-sm" onclick="goTo('quizA')">&larr; Redo ${esc(pName)}'s Quiz</button>
+        <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over</button>
+      </div>
     </div>`;
   } else {
+    // Check if both partners share the same primary language
+    const rA = S.quizA.done ? getRanked(S.quizA.scores) : null;
+    const samePrimary = rA && rA[0].key === primary.key;
     return `
     <div class="transition-screen">
       <div class="transition-icon">🎉</div>
@@ -578,12 +737,20 @@ function renderTransition(p) {
           <p class="result-lang-desc" style="font-size:0.83rem;">${esc(LL_SHORT_DESC[secondary.key])}</p>
         </div>
       </div>
+      ${samePrimary ? `
+      <div class="handoff-box" style="border-color:var(--gold);background:var(--gold-light);">
+        <p>&#9733; You both speak <strong>${primary.icon} ${primary.label}</strong>. Your results include a special same-language insight just for couples like you.</p>
+      </div>` : `
       <div class="handoff-box" style="border-color:var(--sage);">
         <p>Both quizzes are complete. Ready to see your results together?</p>
-      </div>
+      </div>`}
       <button class="btn btn-plum btn-lg" onclick="goTo('results')">
         See Our Results &rarr;
       </button>
+      <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:0.75rem;">
+        <button class="btn btn-ghost-plum btn-sm" onclick="goTo('quizB')">&larr; Redo ${esc(pName)}'s Quiz</button>
+        <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over</button>
+      </div>
     </div>`;
   }
 }
@@ -626,6 +793,8 @@ function renderResults() {
   const rB = getRanked(S.quizB.scores);
   const ck = getCompatKey(rA[0].key, rB[0].key);
   const compat = COMPAT[ck] || { shared:'', difference:'', growth:'' };
+  const sameLang = rA[0].key === rB[0].key;
+  const slb = sameLang ? SAME_LANG_BONUS[rA[0].key] : null;
 
   return `
 <div class="screen${isActive?' active':''}" id="screen-results">
@@ -664,6 +833,23 @@ function renderResults() {
         <span class="insight-tag g-tag">Growth Opportunity</span>
         <p class="insight-text">${esc(compat.growth)}</p>
       </div>
+      ${sameLang ? `
+      <div class="insight-card" style="border-left-color:var(--gold);margin-top:1rem;">
+        <span class="insight-tag" style="color:var(--gold);">&#9733; You share the same primary language: ${rA[0].icon} ${rA[0].label}</span>
+        <p class="insight-text" style="margin-top:0.6rem;"><strong>What this gives you:</strong> ${esc(slb.gift)}</p>
+        <p class="insight-text" style="margin-top:0.6rem;"><strong>The hidden blind spot:</strong> ${esc(slb.blind)}</p>
+        <p class="insight-text" style="margin-top:0.6rem;"><strong>What to practice:</strong> ${esc(slb.practice)}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:1rem;">
+          <div style="background:var(--mauve-pale);border-radius:var(--r-sm);padding:0.8rem;">
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mauve);font-family:var(--font-sans);margin-bottom:0.35rem;">${esc(nA())}'s angle</div>
+            <p style="font-size:0.88rem;color:var(--plum-85);line-height:1.6;">${esc(slb.uniqueA)}</p>
+          </div>
+          <div style="background:var(--sage-bg);border-radius:var(--r-sm);padding:0.8rem;">
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--sage);font-family:var(--font-sans);margin-bottom:0.35rem;">${esc(nB())}'s angle</div>
+            <p style="font-size:0.88rem;color:var(--plum-85);line-height:1.6;">${esc(slb.uniqueB)}</p>
+          </div>
+        </div>
+      </div>` : ''}
     </div>
 
     <h2 style="font-family:var(--font-serif);font-size:1.5rem;color:var(--plum);margin-bottom:0.8rem;">What's Inside Your Workbook</h2>
@@ -678,6 +864,9 @@ function renderResults() {
       <h2>Ready to build your personalized workbook?</h2>
       <p>Three quick questions first, then your 15-page printable PDF is ready.</p>
       <button class="btn btn-plum btn-lg" onclick="goTo('personal')">Personalize Our Workbook &rarr;</button>
+      <div style="margin-top:1.2rem;display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over</button>
+      </div>
     </div>
   </div>
 </div>`;
@@ -764,7 +953,10 @@ function renderPersonal() {
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;gap:1rem;flex-wrap:wrap;">
       <button class="btn btn-ghost btn-sm" onclick="goTo('results')">&larr; Back to Results</button>
-      <button class="btn btn-plum btn-lg" onclick="buildAndDownload()">Build Our Workbook &rarr;</button>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over</button>
+        <button class="btn btn-plum btn-lg" onclick="buildAndDownload()">Build Our Workbook &rarr;</button>
+      </div>
     </div>
   </div>
 </div>`;
@@ -803,6 +995,8 @@ function renderDownload() {
     <div class="download-btns">
       <button class="btn btn-plum btn-full btn-lg" onclick="triggerPrint()">&#128438; Download / Print as PDF</button>
       <button class="btn btn-ghost btn-sm" onclick="goTo('results')">&larr; Review Results</button>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('personal')">&larr; Edit Personalization</button>
+      <button class="btn btn-ghost-plum btn-sm" onclick="startOver()">Start Over with New Names</button>
     </div>
     <p class="download-note">Works best in Chrome or Safari. Choose "Save as PDF" in the print dialog.</p>
   </div>
@@ -835,8 +1029,19 @@ function goTo(screen) {
     const p = screen === 'transA' ? 'A' : 'B';
     const inner = document.getElementById(`trans${p}-inner`);
     if (inner) inner.innerHTML = renderTransition(p);
+    // Ensure the screen is marked active (outerHTML replacement above can lose the class)
+    const screenEl = document.getElementById('screen-trans' + p);
+    if (screenEl) screenEl.classList.add('active');
   }
   if (screen === 'results') {
+    // Re-render results now that both quizzes are done (it rendered empty on initial page load)
+    const resEl = document.getElementById('screen-results');
+    if (resEl) {
+      resEl.outerHTML = renderResults();
+      // Re-apply active class to the newly created element
+      const newResEl = document.getElementById('screen-results');
+      if (newResEl) newResEl.classList.add('active');
+    }
     setTimeout(drawResultsChart, 80);
   }
 }
@@ -858,8 +1063,11 @@ function buildPrintDocument() {
 
   const rA = getRanked(S.quizA.scores);
   const rB = getRanked(S.quizB.scores);
-  const planA = buildPersonalizedPlan(S.quizB.scores); // A does actions for B
-  const planB = buildPersonalizedPlan(S.quizA.scores); // B does actions for A
+  // Detect same-language pair: if A and B share the same primary language,
+  // offset B's actions by 1 so the lists read distinctly different.
+  const sameLang = rA[0].key === rB[0].key;
+  const planA = buildPersonalizedPlan(S.quizB.scores, 0);  // A does actions for B's language (offset 0)
+  const planB = buildPersonalizedPlan(S.quizA.scores, sameLang ? 5 : 0); // B does actions for A (offset 5 if same lang so plans differ)
   const p = S.personal;
   const ck = getCompatKey(rA[0].key, rB[0].key);
   const compat = COMPAT[ck] || { shared:'', difference:'', growth:'' };
@@ -877,14 +1085,9 @@ function buildPrintDocument() {
     </div>`).join('');
   }
 
-  // Action list for print (first 15 for a given language set)
-  function ptActions(primaryKey, secondaryKey, actorName, receiverName) {
-    const primary10 = ACTION_POOL[primaryKey].slice(0,10);
-    const sec5 = ACTION_POOL[secondaryKey].slice(0,5);
-    const allActions = [
-      ...primary10.map(a => ({ a, ll: primaryKey })),
-      ...sec5.map(a => ({ a, ll: secondaryKey }))
-    ];
+  // Action list for print: 15 items, offset shifts start index so same-language partners get different actions
+  function ptActions(primaryKey, secondaryKey, offset) {
+    const allActions = buildActionList(primaryKey, secondaryKey, offset || 0);
     return allActions.map((item, i) => `
     <div class="print-avoid-break" style="display:grid;grid-template-columns:16pt 12pt 1fr 70pt;gap:5pt;align-items:start;padding:4pt 0;border-bottom:0.5pt solid #EEE0D3;">
       <span style="font-family:'Cormorant Garamond',serif;font-size:11pt;color:#A0607A;font-weight:700;">${i+1}</span>
@@ -1059,6 +1262,23 @@ function buildPrintDocument() {
     <div style="font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#C89A4A;font-family:'DM Sans',sans-serif;margin-bottom:5pt;">Growth Opportunity</div>
     <div style="font-size:8.5pt;color:#3D1C3A;line-height:1.6;">${esc(compat.growth)}</div>
   </div>
+  ${sameLang ? `
+  <div style="background:#FDF8F5;border:2pt solid #C89A4A;border-radius:8pt;padding:0.18in;margin-top:0.15in;" class="print-avoid-break">
+    <div style="font-size:7pt;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C89A4A;font-family:'DM Sans',sans-serif;margin-bottom:8pt;">&#9733; You Share the Same Primary Language: ${rA[0].icon} ${rA[0].label}</div>
+    <div style="font-size:8.5pt;color:#3D1C3A;line-height:1.6;margin-bottom:6pt;"><strong>What this gives you:</strong> ${esc(SAME_LANG_BONUS[rA[0].key].gift)}</div>
+    <div style="font-size:8.5pt;color:#3D1C3A;line-height:1.6;margin-bottom:6pt;"><strong>The hidden blind spot:</strong> ${esc(SAME_LANG_BONUS[rA[0].key].blind)}</div>
+    <div style="font-size:8.5pt;color:#3D1C3A;line-height:1.6;margin-bottom:10pt;"><strong>What to practice:</strong> ${esc(SAME_LANG_BONUS[rA[0].key].practice)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.12in;">
+      <div style="background:#FAE8EE;border-radius:6pt;padding:8pt 10pt;">
+        <div style="font-size:7pt;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#A0607A;font-family:'DM Sans',sans-serif;margin-bottom:4pt;">${esc(nA())}'s angle</div>
+        <div style="font-size:8pt;color:#3D1C3A;line-height:1.5;">${esc(SAME_LANG_BONUS[rA[0].key].uniqueA)}</div>
+      </div>
+      <div style="background:#EEF5F0;border-radius:6pt;padding:8pt 10pt;">
+        <div style="font-size:7pt;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7A9E84;font-family:'DM Sans',sans-serif;margin-bottom:4pt;">${esc(nB())}'s angle</div>
+        <div style="font-size:8pt;color:#3D1C3A;line-height:1.5;">${esc(SAME_LANG_BONUS[rA[0].key].uniqueB)}</div>
+      </div>
+    </div>
+  </div>` : ''}
 </div>
 
 <!-- ======================================================
@@ -1175,7 +1395,7 @@ function buildPrintDocument() {
       <span style="font-family:'Cormorant Garamond',serif;font-size:13pt;font-weight:700;color:#3D1C3A;">${esc(nA())}: Here is how to love ${esc(nB())}</span>
     </div>
     <div style="font-size:8pt;color:#6B3560;margin-bottom:8pt;">${esc(nB())}'s primary language is <strong>${rB[0].icon} ${rB[0].label}</strong>. Secondary: ${rB[1].icon} ${rB[1].label}. These 15 actions are written for you, ${esc(nA())}.</div>
-    ${ptActions(rB[0].key, rB[1].key, nA(), nB())}
+    ${ptActions(rB[0].key, rB[1].key, 0)}
   </div>
 </div>
 <div class="print-page">
@@ -1185,7 +1405,7 @@ function buildPrintDocument() {
       <span style="font-family:'Cormorant Garamond',serif;font-size:13pt;font-weight:700;color:#3D1C3A;">${esc(nB())}: Here is how to love ${esc(nA())}</span>
     </div>
     <div style="font-size:8pt;color:#6B3560;margin-bottom:8pt;">${esc(nA())}'s primary language is <strong>${rA[0].icon} ${rA[0].label}</strong>. Secondary: ${rA[1].icon} ${rA[1].label}. These 15 actions are written for you, ${esc(nB())}.</div>
-    ${ptActions(rA[0].key, rA[1].key, nB(), nA())}
+    ${ptActions(rA[0].key, rA[1].key, sameLang ? 5 : 0)}
   </div>
 </div>
 
